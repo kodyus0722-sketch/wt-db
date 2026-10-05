@@ -43,13 +43,21 @@ button.pos{border:0;font-family:inherit;cursor:pointer}.lk{background:none;borde
 .nlk{background:none;border:0;padding:0;font:inherit;color:var(--ac);font-weight:700;text-decoration:underline;cursor:pointer}.aname .nlk{font-size:28px}
 .pbox{position:relative;background:var(--card);color:var(--fg);border-radius:14px;padding:44px 16px 16px;max-width:520px;width:100%;max-height:88vh;overflow:auto;text-align:left}.pbox .chart{background:var(--bg)}.pbox .slot{background:var(--bg)}
 .x{position:absolute;top:8px;right:10px;width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--bg);color:var(--fg);font-size:20px;line-height:1;cursor:pointer}
+.src{font-size:12px;color:var(--sub);margin:18px 0 6px;line-height:1.7;text-align:left}.src a{color:var(--ac)}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}.homebtn{width:40px;height:40px;border-radius:6px;border:1px solid var(--line);background:var(--card);color:var(--fg);display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
+.ansbox{margin:14px 0 4px}.ansbox input{width:100%;padding:14px;font-size:16px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--fg)}
+.res{text-align:center;margin:10px 0;padding:12px;background:var(--card);border-radius:12px}.res .pt{font-size:36px;font-weight:700;color:var(--ac);margin:2px 0}
+.score{text-align:center;font-size:56px;font-weight:700;color:var(--ac);margin:8px 0}.score small{font-size:20px;color:var(--sub);font-weight:400}
+.rt td:first-child{width:2.2em;color:var(--sub)}.rt td{font-size:14px;word-break:break-all}.rt td:last-child{font-size:15px;white-space:nowrap}
+.optrow{text-align:center;margin:18px 0}.pbox h3{margin:14px 0 6px;font-size:15px}
 .note{color:var(--sub);font-size:12px;margin-top:14px}
 </style>
 </head>
 <body>
 <div class="wrap" id="app"></div>
 <div class="modal" id="pop" hidden><div class="pbox" role="dialog" aria-modal="true"><button class="x" id="px" aria-label="閉じる">×</button><div id="pbody"></div></div></div>
-<div class="modal" id="modal" hidden><div class="mbox"><p>本当に終了しますか？</p><div class="mbtns"><button class="btn pri" id="mok">OK</button><button class="btn" id="mno">キャンセル</button></div></div></div>
+<div class="modal" id="opt" hidden><div class="pbox" role="dialog" aria-modal="true"><button class="x" id="ox" aria-label="閉じる">×</button><div id="obody"></div></div></div>
+<div class="modal" id="modal" hidden><div class="mbox"><p id="mtxt">本当に終了しますか？</p><div class="mbtns"><button class="btn pri" id="mok">OK</button><button class="btn" id="mno">キャンセル</button></div></div></div>
 <script>
 const KEYS=["トリオン","攻撃","防御・援護","機動","技術","射程","指揮","特殊戦術"];
 const KEYS_OP=["トリオン","機器操作","情報分析","並列処理","戦術","指揮"];
@@ -368,8 +376,10 @@ const VER={};VER_RAW.split("\n").forEach(l=>{const[n,m,u]=l.split("|");VER[n]={m
 const app=document.getElementById("app");
 let q="";
 
+const SRC=`<p class="src">参照元<br>・パラメーター：ワールドトリガー@wiki「キャラクターパラメーター」（<a href="https://w.atwiki.jp/worldtrigger2ch/pages/383.html" target="_blank" rel="noopener noreferrer">リンク</a>）<br>・トリガーセット：公式データブック BORDER BRIEFING FILE（集英社）（<a href="https://www.shueisha.co.jp/books/items/contents.html?isbn=978-4-08-880704-1" target="_blank" rel="noopener noreferrer">リンク</a>）、ワールドトリガー＜所属、ポジション、トリガー一覧＞（<a href="https://sagisi4.sakura.ne.jp/haguruma/wt/wt03.html" target="_blank" rel="noopener noreferrer">リンク</a>）</p>`;
 const enc=encodeURIComponent;
 let cur=location.hash,from="";
+let stack=[],backing=false;
 let HS={id:null};
 function newHS(id){HS={id,p:{m:"show",sel:new Set(),act:new Set()},t:{m:"show",sel:new Set(),act:new Set()}}}
 const base=n=>n.split(/[：〈]/)[0];
@@ -384,7 +394,7 @@ function tsets(c){
 function rowHTML(c,tag){return `<button class="item" data-h="#c${c.id}"><span class="pos">${c.pos}</span><span class="nm">${c.name}</span><span class="tm">${tag===undefined?c.team:tag}</span></button>`}
 
 function list(){
-  app.innerHTML=`<button class="back" data-h="">‹ ホーム</button><h1>キャラクター一覧</h1>
+  app.innerHTML=`${topbar()}<h1>キャラクター一覧</h1>
   <input id="q" type="search" placeholder="名前・所属隊・ポジションで検索" value="${q}" aria-label="検索">
   <div class="cnt" id="cnt"></div><div id="ls"></div>`;
   const inp=document.getElementById("q");
@@ -410,7 +420,7 @@ function filtered(kind,val){
     if(exact&&/[：〈]/.test(val))note=`<p><button class="lk" data-h="#b/${enc(base(val))}">「${base(val)}」の派生トリガーも含めて見る</button></p>`;
     note+=`<p class="sub" style="font-size:12px">枠の位置が未確認の隊員は、参照元の記載をもとにしています。</p>`;
   }
-  app.innerHTML=`<button class="back" data-a="back">‹ 戻る</button><h1>${title}</h1><div class="cnt">${rows.length}人</div>${note}<div>${rows.join("")||'<p class="sub">該当する隊員がいません。</p>'}</div>`;
+  app.innerHTML=`${topbar()}<button class="back" data-a="back">‹ 戻る</button><h1>${title}</h1><div class="cnt">${rows.length}人</div>${note}<div>${rows.join("")||'<p class="sub">該当する隊員がいません。</p>'}</div>`;
   scrollTo(0,0);
 }
 
@@ -477,43 +487,47 @@ function detail(id,keep){
   const isOp=c.pos==="OP",keys=isOp?KEYS_OP:KEYS,P=HS.p;
   const hidP=P.m==="hidden"?P.act:new Set();
   const team=c.team&&c.team!=="—"?`<button class="lk" data-h="#t/${enc(c.team)}">${c.team}</button>`:(c.team||"—");
-  app.innerHTML=`<button class="back" data-a="back">‹ 戻る</button>
+  app.innerHTML=`${topbar()}<button class="back" data-a="back">‹ 戻る</button>
   <div class="head"><button class="pos" data-h="#p/${enc(c.pos)}" aria-label="同じポジションの一覧">${c.pos}</button><h2>${c.name}</h2></div>
   <div class="sub">所属隊：${team}　ポジション：${PN[c.pos]||"—"}</div>
   <div class="hdr"><h3>パラメータ</h3><div class="ctl">${ctlBar("p",P)}</div></div>
   <div class="chart">${radar(c.st,keys,c.total,isOp,hidP)}</div>
   ${trig(c)}
-  <p class="note">※ 数値は公式ファンブック(BBF)14巻時点のパラメーター（出典：ワールドトリガー@wiki）。「—」は未公開の項目です。合計値も同ページ記載の値です（オペレーターはトリオンを含みません）。所属隊は一部本アプリ独自の記載です。ポジション・所属隊・トリガー名をタップすると、同じ隊員の一覧を見られます。</p>`;
+  <p class="note">※ 数値は公式ファンブック(BBF)14巻時点のパラメーター（出典：ワールドトリガー@wiki）。「—」は未公開の項目です。合計値も同ページ記載の値です（オペレーターはトリオンを含みません）。所属隊は一部本アプリ独自の記載です。ポジション・所属隊・トリガー名をタップすると、同じ隊員の一覧を見られます。</p>${SRC}`;
   if(!keep)scrollTo(0,0);
 }
 
 /* ---------- ホーム・クイズ ---------- */
 let QZ=null;
-let MINOR=false;
+let MINOR=false,NEAR=false,TYPED=false;
 const MINOR_SET=(()=>{const a=DATA.findIndex(c=>c.name==="茶野真"),b=DATA.findIndex(c=>c.name==="丙秀英");return DATA.slice(a,b+1).filter(c=>c.team!=="漆間隊").map(c=>c.name)})();
-const modal=document.getElementById("modal");
+const NEAR_SET=DATA.filter(c=>c.team==="アフトクラトル"||c.team==="ガロプラ"||c.name.startsWith("ヒュース")).map(c=>c.name);
+const modal=document.getElementById("modal"),mtxt=document.getElementById("mtxt");
+function openModal(t){mtxt.textContent=t;modal.hidden=false}
 function home(){
   app.innerHTML=`<h1>ボーダー隊員データベース</h1><p class="sub">ワールドトリガーの隊員データを見る・クイズで遊ぶ</p>
   <button class="bigbtn" data-h="#quiz">クイズ<small>チャートやトリガーセットからキャラを当てる</small></button>
   <button class="bigbtn" data-h="#list">キャラクター一覧<small>名前・所属隊・ポジションで検索できます</small></button>`;
   scrollTo(0,0);
 }
-const qbar=t=>`<div class="qbar"><span class="qn">${t}</span><button class="btn" data-a="endq">終了する</button></div>`;
+function topbar(right){return `<div class="topbar"><button class="homebtn" data-a="gohome" aria-label="ホームへ"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M3 11.5L12 4l9 7.5"/><path d="M5.5 10v10h5v-6h3v6h5V10"/></svg></button><div>${right||""}</div></div>`}
+const qbar=t=>`${topbar('<button class="btn" data-a="endq">終了する</button>')}<div class="qn" style="margin:4px 0">${t}</div>`;
 function quizSelect(){
-  app.innerHTML=`${qbar("クイズ")}<h2 class="qt">クイズの種類を選んでください</h2>
-  <label class="tgl"><input type="checkbox" data-a="minor"${MINOR?" checked":""}><span>出題範囲にマイナーキャラを追加<small>オフ：一覧の茶野隊〜丙秀英の間のキャラ（漆間隊を除く）を出題しない／オン：出題する<br>※ 除外対象のキャラと同じトリガーセットのキャラが除外対象外にいる場合、そのトリガーセットは出題される可能性があります</small></span></label>
+  app.innerHTML=`${topbar()}<div class="qn" style="margin:4px 0">クイズ</div><h2 class="qt">クイズの種類を選んでください</h2>
   <button class="bigbtn" data-a="qstart" data-s="chart">チャートクイズ<small>パラメーターのチャートから当てる（10問）</small></button>
-  <button class="bigbtn" data-a="qstart" data-s="trig">トリガーセットクイズ<small>メイン・サブのトリガーセットから当てる（10問）</small></button>`;
+  <button class="bigbtn" data-a="qstart" data-s="trig">トリガーセットクイズ<small>メイン・サブのトリガーセットから当てる（10問）</small></button>
+  <div class="optrow"><button class="btn" data-a="opt">⚙ オプション</button></div>`;
   scrollTo(0,0);
 }
-function qPool(type){return DATA.filter(c=>c.pos!=="OP"&&(MINOR||!MINOR_SET.includes(c.name))&&(type==="chart"?c.st.every(v=>v!=null):!!VER[c.name]))}
+function qPool(type){return DATA.filter(c=>c.pos!=="OP"&&(MINOR||!MINOR_SET.includes(c.name))&&(NEAR||!NEAR_SET.includes(c.name))&&(type==="chart"?c.st.every(v=>v!=null):!!VER[c.name]))}
 const setKey=c=>{const v=VER[c.name];return JSON.stringify([v.main.map(x=>x||""),v.sub.map(x=>x||"")])};
 function startQuiz(type){
-  const pool=qPool(type);
-  for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]]}
   const groups={};
   if(type==="trig")DATA.filter(c=>c.pos!=="OP"&&VER[c.name]).forEach(c=>{(groups[setKey(c)]=groups[setKey(c)]||[]).push(c.name)});
-  QZ={type,items:pool.slice(0,10),i:0,phase:"q",groups};
+  let pool=qPool(type);
+  if(type==="trig"&&TYPED)pool=pool.filter(c=>groups[setKey(c)].length===1);
+  for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]]}
+  QZ={type,items:pool.slice(0,10),i:0,phase:"q",groups,typed:!!TYPED,level:TYPED||null,per:({easy:1,normal:2,hard:3})[TYPED]||0,ans:[],pts:[]};
   if(location.hash==="#qp")quizPlay();else location.hash="#qp";
 }
 function pc(k,n,v,fr){let cls="slot",b=v;if(v==="■"){cls+=" blk";b="黒塗り"}else if(!v){cls+=" free";b=fr||"FREE"}return `<div class="${cls}"><span class="sn">${k}${n+1}</span><span class="sv">${b}</span></div>`}
@@ -522,8 +536,146 @@ function qtrig(c){
   for(let i=0;i<n;i++)g+=pc("サブ",i,v.sub[i])+pc("メイン",i,v.main[i]);
   return `<div class="tg"><div class="th">サブトリガー</div><div class="th">メイントリガー</div>${g}</div>`;
 }
+const READ={};
+`忍田|真史|しのだ|まさふみ
+林藤|匠|りんどう|たくみ
+沢村|響子|さわむら|きょうこ
+寺島|雷蔵|てらしま|らいぞう
+天羽|月彦|あまう|つきひこ
+迅|悠一|じん|ゆういち
+太刀川|慶|たちかわ|けい
+出水|公平|いずみ|こうへい
+唯我|尊|ゆいが|たける
+冬島|慎次|ふゆしま|しんじ
+当真|勇|とうま|いさみ
+風間|蒼也|かざま|そうや
+歌川|遼|うたがわ|りょう
+菊地原|士郎|きくちはら|しろう
+緑川|駿|みどりかわ|しゅん
+佐伯|竜司|さえき|りゅうじ
+里見|一馬|さとみ|かずま
+宇野|隼人|うの|はやと
+嵐山|准|あらしやま|じゅん
+木虎|藍|きとら|あい
+時枝|充|ときえだ|みつる
+佐鳥|賢|さとり|けん
+加古|望|かこ|のぞみ
+黒江|双葉|くろえ|ふたば
+喜多川|真衣|きたがわ|まい
+三輪|秀次|みわ|しゅうじ
+米屋|陽介|よねや|ようすけ
+奈良坂|透|ならさか|とおる
+古寺|章平|こでら|しょうへい
+片桐|隆明|かたぎり|たかあき
+一条|雪丸|いちじょう|ゆきまる
+桃園|藤一郎|ももぞの|とういちろう
+尼倉|亜澄|あまくら|あすみ
+木崎|レイジ|きざき|れいじ
+小南|桐絵|こなみ|とうえ
+烏丸|京介|からすま|きょうすけ
+二宮|匡貴|にのみや|まさたか
+犬飼|澄晴|いぬかい|すみはる
+辻|新之助|つじ|しんのすけ
+鳩原|未来|はとはら|みらい
+影浦|雅人|かげうら|まさと
+絵馬|ユズル|えま|ゆずる
+北添|尋|きたぞえ|ひろ
+生駒|達人|いこま|たつひと
+水上|敏志|みずかみ|さとし
+隠岐|孝二|おき|こうじ
+南沢|海|みなみさわ|かい
+王子|一彰|おうじ|かずあき
+蔵内|和紀|くらうち|かずき
+樫尾|由多嘉|かしお|ゆたか
+弓場|拓磨|ゆば|たくま
+帯島|ユカリ|おびしま|ゆかり
+外岡|一斗|とのおか|かずと
+来馬|辰也|くるま|たつや
+村上|鋼|むらかみ|てつ
+別役|太一|べつやく|たいち
+東|春秋|あずま|はるあき
+小荒井|登|こあらい|のぼる
+奥寺|常幸|おくでら|つねゆき
+三雲|修|みくも|おさむ
+空閑|遊真|くが|ゆうま
+雨取|千佳|あまとり|ちか
+香取|葉子|かとり|ようこ
+三浦|雄太|みうら|ゆうた
+若村|麓郎|わかむら|ろくろう
+諏訪|洸太郎|すわ|こうたろう
+堤|大地|つつみ|だいち
+笹森|日佐人|ささもり|ひさと
+荒船|哲次|あらふね|てつじ
+穂刈|篤|ほかり|あつし
+半崎|義人|はんざき|よしと
+那須|玲|なす|れい
+熊谷|友子|くまがい|ゆうこ
+日浦|茜|ひうら|あかね
+柿崎|国治|かきざき|くにはる
+照屋|文香|てるや|ふみか
+巴|虎太郎|ともえ|こたろう
+茶野|真|ちゃの|まこと
+藤沢|樹|ふじさわ|いつき
+吉里|雄一郎|よしざと|ゆういちろう
+漆間|恒|うるしま|わたる
+松代|仁|まつしろ|ひとし
+箱田|正邦|はこだ|まさくに
+土崎|祐也|つちさき|ゆうや
+海老名|貴大|えびな|たかひろ
+乙川|由紀人|おとかわ|ゆきと
+茂手木|翔|もてぎ|しょう
+早川|悟|はやかわ|さとる
+船橋|了午|ふなばし|りょうご
+丸井|星司|まるい|せいじ
+常盤|守|ときわ|まもる
+斎藤|鴉哉|さいとう|ときや
+宇都宮|和歌|うつのみや|わか
+計良|佳伸|けら|よしのぶ
+北添|秀高|きたぞえ|ひでたか
+月見|花緒|つきみ|はなお
+間宮|桂三|まみや|けいぞう
+鯉沼|三弥|こいぬま|みつや
+秦|稔|はた|みのる
+甲田|照輝|こうだ|てるき
+早乙女|文史|そうとめ|ふみし
+丙|秀英|ひのえ/へい|ひでえい/しゅうえい/ひでひで
+夏目|出穂|なつめ|いずほ
+林藤|陽太郎|りんどう|ようたろう`.split("\n").forEach(l=>{const[a,b,c,d]=l.split("|");READ[a+b]={s:a,g:b,rs:c.split("/"),rg:d.split("/")}});
+const norm=t=>(t||"").normalize("NFKC").replace(/[ァ-ヶ]/g,ch=>String.fromCharCode(ch.charCodeAt(0)-0x60)).replace(/[\s・･·.]/g,"").toLowerCase();
+/* 判定：3=漢字フルネーム一致 / 2=姓・名とも読み(または漢字)一致 / 1=姓のみ または 名のみ一致 / 0=不一致 */
+function judge(name,input){
+  const full=name.replace(/（.*?）/g,""),x=norm(input);
+  if(!x)return 0;
+  const nm=READ[full];
+  if(!nm)return x===norm(full)?3:0;
+  const fs=norm(nm.s),fg=norm(nm.g);
+  if(x===fs+fg)return 3;
+  const S=[fs,...nm.rs.map(norm)],G=[fg,...nm.rg.map(norm)];
+  const sp=S.filter(t=>x.startsWith(t)).sort((p,q)=>q.length-p.length)[0];
+  if(sp!==undefined){const rest=x.slice(sp.length);return rest===""?1:(G.includes(rest)?2:1)}
+  if(G.includes(x))return 1;
+  return G.some(t=>x.endsWith(t)&&x.length>t.length)?1:0;
+}
+const TIERS={hard:["不正解","姓または名の読みが正解","姓・名の読みが正解","フルネーム（漢字）まで正解"],normal:["不正解","姓または名が正解","フルネームの読みが正解"],easy:["不正解","姓または名が正解"]};
+function submitAnswer(){
+  if(!QZ||QZ.phase!=="q")return;
+  if(QZ.typed){
+    const el=document.getElementById("ans"),v=el&&typeof el.value==="string"?el.value:"";
+    const c=QZ.items[QZ.i];
+    const names=QZ.type==="trig"?(QZ.groups[setKey(c)]||[c.name]):[c.name];
+    const raw=Math.max(...names.map(n=>judge(n,v)));
+    QZ.ans[QZ.i]=v;QZ.pts[QZ.i]=QZ.level==="easy"?(raw>=1?1:0):QZ.level==="normal"?(raw>=2?2:raw):raw;
+  }
+  QZ.phase="a";quizPlay();
+}
 function quizPlay(){
   if(!QZ){location.hash="";return}
+  if(QZ.phase==="r"){
+    const total=QZ.pts.reduce((p,q)=>p+(q||0),0),max=QZ.items.length*QZ.per;
+    const rows=QZ.items.map((c,i)=>`<tr><td>${i+1}</td><td>${c.name}</td><td>${QZ.ans[i]?QZ.ans[i].replace(/</g,"&lt;"):"—"}</td><td>${QZ.pts[i]||0}点</td></tr>`).join("");
+    app.innerHTML=`${qbar("結果")}<h2 class="qt">リザルト</h2><div class="score">${total}<small> / ${max}点</small></div><table class="rt">${rows}</table><div class="qb"><button class="btn pri big" data-a="qhome">ホームへ戻る</button></div>`;
+    scrollTo(0,0);return;
+  }
   const c=QZ.items[QZ.i],isC=QZ.type==="chart",last=QZ.i===QZ.items.length-1;
   const body=isC?`<div class="chart">${radar(c.st,KEYS,c.total,false,new Set())}</div>`:qtrig(c);
   const bar=qbar(`第${QZ.i+1}問 / ${QZ.items.length}`);
@@ -531,10 +683,44 @@ function quizPlay(){
   const qSame=same.length>1?`<p class="same">同じトリガーセットのキャラクター：${same.length}人（正解を含む）</p>`:"";
   const nl=n=>`<button class="nlk" data-a="pop" data-n="${n}">${n}</button>`;
   const aSame=same.length>1?`<div class="same">同じトリガーセットのキャラクター（${same.length}人）<br>${same.map(nl).join("、")}</div>`:"";
-  if(QZ.phase==="q")app.innerHTML=`${bar}<h2 class="qt">${isC?"このチャートのキャラクターは？":"このトリガーセットのキャラクターは？"}</h2>${qSame}${body}<div class="qb"><button class="btn pri big" data-a="qans">回答を見る</button></div>`;
-  else app.innerHTML=`${bar}<div class="ans"><div class="sub">答え</div><h2 class="aname">${nl(c.name)}</h2><div class="same" style="margin-top:0">名前をタップすると詳細を見られます</div>${aSame}</div>${body}<div class="qb"><button class="btn pri big" data-a="qnext">${last?"ホームへ戻る":"次へ"}</button></div>`;
+  if(QZ.phase==="q"){
+    const ask=QZ.typed?`<div class="ansbox"><input id="ans" type="text" placeholder="キャラクター名を入力（例：三雲 修）" autocomplete="off" autocapitalize="off" spellcheck="false"></div><div class="qb"><button class="btn pri big" data-a="qans">回答する</button></div>`:`<div class="qb"><button class="btn pri big" data-a="qans">回答を見る</button></div>`;
+    app.innerHTML=`${bar}<h2 class="qt">${isC?"このチャートのキャラクターは？":"このトリガーセットのキャラクターは？"}</h2>${qSame}${body}${ask}${isC?SRC:""}`;
+  }else{
+    const p=QZ.pts[QZ.i]||0;
+    const res=QZ.typed?`<div class="res"><div>あなたの回答：<b>${QZ.ans[QZ.i]?QZ.ans[QZ.i].replace(/</g,"&lt;"):"（未入力）"}</b></div><div class="pt">${p}点</div><div class="sub">${TIERS[QZ.level][p]}</div></div>`:"";
+    const nextLabel=last?(QZ.typed?"結果を見る":"ホームへ戻る"):"次へ";
+    app.innerHTML=`${bar}${res}<div class="ans"><div class="sub">答え</div><h2 class="aname">${nl(c.name)}</h2><div class="same" style="margin-top:0">名前をタップすると詳細を見られます</div>${aSame}</div>${body}<div class="qb"><button class="btn pri big" data-a="qnext">${nextLabel}</button></div>${isC?SRC:""}`;
+  }
   scrollTo(0,0);
 }
+
+const opt=document.getElementById("opt"),obody=document.getElementById("obody");
+function openOpt(){
+  obody.innerHTML=`<h2 style="margin:0 0 4px">オプション</h2><p class="sub" style="font-size:12px;margin:0 0 6px">切り替えるとすぐに出題形式へ反映されます。</p>
+  <h3>出題対象キャラ</h3>
+  <label class="tgl"><input type="checkbox" data-o="minor"${MINOR?" checked":""}><span>出題範囲にマイナーキャラを追加<small>対象：一覧の茶野隊〜丙秀英のキャラ（漆間隊を除く）<br>※ 同一トリガーセットのキャラが除外対象外にいる場合、出題の可能性あり</small></span></label>
+  <label class="tgl"><input type="checkbox" data-o="near"${NEAR?" checked":""}><span>出題範囲に近界民を追加<small>対象：アフトクラトル・ガロプラのキャラ（ヒュースを含む）</small></span></label>
+  <h3>回答形式（手打ちで入力するモード）</h3>
+  <label class="tgl"><input type="checkbox" data-o="easy"${TYPED==="easy"?" checked":""}><span>名前を手打ちで入力【簡単】<small>姓か名のどちらかが合っていれば正解（漢字・ひらがな可）<br>1問1点・満点10点</small></span></label>
+  <label class="tgl"><input type="checkbox" data-o="normal"${TYPED==="normal"?" checked":""}><span>名前を手打ちで入力【普通】<small>フルネームの読みが合っていれば2点、姓か名の片方だけなら1点<br>1問2点・満点20点</small></span></label>
+  <label class="tgl"><input type="checkbox" data-o="hard"${TYPED==="hard"?" checked":""}><span>名前を手打ちで入力【難しい】<small>フルネームの漢字まで合っていれば3点、読みなら2点、姓か名の片方だけなら1点<br>1問3点・満点30点</small></span></label>
+  <p class="sub" style="font-size:12px">※ すべてオフのときは、手打ちなしで答えを見るクイズになります。<br>※ 手打ちモードのトリガーセットクイズでは、同一トリガーセットのキャラは出題しません。</p>`;
+  opt.hidden=false;
+  const box=opt.firstElementChild;if(box&&box.scrollTo)box.scrollTo(0,0);
+}
+document.getElementById("ox").onclick=()=>{opt.hidden=true};
+opt.onclick=e=>{
+  if(e.target===opt){opt.hidden=true;return}
+  const el=e.target&&e.target.closest?e.target.closest("[data-o]"):null;
+  if(!el)return;
+  if(el.dataset.o==="minor")MINOR=el.checked;
+  else if(el.dataset.o==="near")NEAR=el.checked;
+  else if(["easy","normal","hard"].includes(el.dataset.o)){
+    TYPED=el.checked?el.dataset.o:false;
+    if(obody.querySelectorAll)obody.querySelectorAll("[data-o=easy],[data-o=normal],[data-o=hard]").forEach(c=>{c.checked=(c.dataset.o===TYPED)});
+  }
+};
 const pop=document.getElementById("pop"),pbody=document.getElementById("pbody");
 function popHTML(c){
   const isOp=c.pos==="OP",keys=isOp?KEYS_OP:KEYS;
@@ -550,7 +736,7 @@ function popHTML(c){
   return `<div class="head"><span class="pos">${c.pos}</span><h2>${c.name}</h2></div>
   <div class="sub">所属隊：${c.team||"—"}　ポジション：${PN[c.pos]||"—"}</div>
   <h3>パラメータ</h3><div class="chart">${radar(c.st,keys,c.total,isOp,new Set())}</div>
-  <h3>トリガーセット</h3>${trg}`;
+  <h3>トリガーセット</h3>${trg}${SRC}`;
 }
 function openPop(name){
   const c=DATA.find(d=>d.name===name);
@@ -569,13 +755,24 @@ app.onclick=e=>{
   if(!el)return;
   if(el.dataset.h!==undefined){location.hash=el.dataset.h;return}
   const a=el.dataset.a,s=el.dataset.s;
-  if(a==="back"){location.hash=(from&&from!==cur)?from:"#list";return}
-  if(a==="endq"){modal.hidden=false;return}
+  if(a==="back"){
+    if(stack.length){const t=stack.pop();if(t!==cur){backing=true;location.hash=t}}
+    else location.hash="#list";
+    return}
+  if(a==="opt"){openOpt();return}
+  if(a==="endq"){openModal("本当に終了しますか？");return}
+  if(a==="gohome"){
+    if(cur==="#list"||cur==="#quiz"){QZ=null;location.hash="";return}
+    openModal(cur==="#qp"?"本当に終了しますか？":"ホームに戻りますか？");
+    return}
   if(a==="minor"){MINOR=el.checked;return}
+  if(a==="near"){NEAR=el.checked;return}
+  if(a==="typed"){TYPED=el.checked;return}
   if(a==="pop"){openPop(el.dataset.n);return}
   if(a==="qstart"){startQuiz(s);return}
-  if(a==="qans"&&QZ){QZ.phase="a";quizPlay();return}
-  if(a==="qnext"&&QZ){if(QZ.i<QZ.items.length-1){QZ.i++;QZ.phase="q";quizPlay()}else{QZ=null;location.hash=""}return}
+  if(a==="qans"&&QZ){submitAnswer();return}
+  if(a==="qhome"){QZ=null;location.hash="";return}
+  if(a==="qnext"&&QZ){if(QZ.i<QZ.items.length-1){QZ.i++;QZ.phase="q";quizPlay()}else if(QZ.typed){QZ.phase="r";quizPlay()}else{QZ=null;location.hash=""}return}
   const c=DATA[HS.id],st=HS[s];
   if(!c||!st)return;
   if(a==="start"){st.m="select";st.sel=new Set()}
@@ -590,9 +787,15 @@ app.onclick=e=>{
   detail(HS.id,true);
 };
 
+app.onkeydown=e=>{if(e.key==="Enter"&&!e.isComposing&&e.target&&e.target.id==="ans"){e.preventDefault();submitAnswer()}};
+
 function route(){
-  pop.hidden=true;
-  if(location.hash!==cur){from=cur;cur=location.hash}
+  pop.hidden=true;opt.hidden=true;
+  if(location.hash!==cur){
+    if(location.hash==="")stack=[];
+    else if(!backing)stack.push(cur);
+    backing=false;cur=location.hash;
+  }
   const h=decodeURIComponent(location.hash);
   let m;
   if(m=h.match(/^#c(\d+)$/))detail(+m[1]);
