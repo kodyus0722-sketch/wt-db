@@ -51,6 +51,11 @@ button.pos{border:0;font-family:inherit;cursor:pointer}.lk{background:none;borde
 .rt td:first-child{width:2.2em;color:var(--sub)}.rt td{font-size:14px;word-break:break-all}.rt td:last-child{font-size:15px;white-space:nowrap}
 .optrow{text-align:center;margin:18px 0}.pbox h3{margin:14px 0 6px;font-size:15px}
 ruby rt{font-size:.5em;font-weight:400;color:var(--sub);letter-spacing:.02em}.aname ruby rt{font-size:.42em}
+.sortbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0 0}.sortbar select{flex:1;min-width:150px;padding:10px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--fg);font-size:14px}
+.seg{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}.seg button{border:0;background:var(--card);color:var(--fg);padding:10px 14px;font:inherit;font-size:14px;cursor:pointer}.seg button.on{background:var(--ac);color:var(--bg)}.seg.dis{opacity:.4;pointer-events:none}
+.fl{font-size:12px;color:var(--sub);margin-top:12px}.chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 2px}
+.chip{border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:999px;padding:6px 12px;font:inherit;font-size:13px;cursor:pointer}.chip.on{background:var(--ac);color:var(--bg);border-color:var(--ac)}
+.item .tm b{color:var(--fg)}
 .note{color:var(--sub);font-size:12px;margin-top:14px}
 </style>
 </head>
@@ -172,7 +177,7 @@ const RAW=`忍田真史|ボーダー本部|AT|7,14,9,7,10,3,10,2|62
 エネドラ（黒トリガー装備）|アフトクラトル|--|41,15,24,7,8,4,5,18|122
 ランバネイン（角トリガー装備）|アフトクラトル|--|25,20,8,15,8,9,7,2|94
 ヴィザ（黒トリガー装備）|アフトクラトル|--|58,32,16,7,14,7,8,4|146
-ヒュース（角トリガー装備）|玉狛第二|--|18,12,24,13,9,4,6,10|96
+ヒュース（角トリガー装備）|アフトクラトル|--|18,12,24,13,9,4,6,10|96
 ミラ（黒トリガー装備）|アフトクラトル|--|36,9,25,20,8,6,5,12|121
 ガトリン|ガロプラ|--|10,13,9,6,10,5,9,4|66
 コスケロ|ガロプラ|--|9,8,10,7,10,3,8,6|61
@@ -400,18 +405,74 @@ function sidx(c){
   if(rd){rd.rs.forEach(a=>f.push(a));rd.rg.forEach(a=>f.push(a));rd.rs.forEach(a=>rd.rg.forEach(b=>f.push(a+b)))}
   return c._s=f.map(norm).join("|");
 }
+let SORT={key:"",dir:"desc"};
+let FILT={aff:new Set(),pos:new Set(),noBlack:false};
+const isBlack=c=>/黒トリガー装備|角トリガー装備|風刃装備/.test(c.name)||c.name==="天羽月彦";
+const isNei=c=>c.team==="アフトクラトル"||c.team==="ガロプラ";
+const TAMA=["玉狛第一","玉狛第二","玉狛支部"];
+const AFFS=[["border","ボーダー所属"],["tama","玉狛支部"],["nei","ネイバー"],["aft","アフトクラトル"],["gal","ガロプラ"]];
+const POSL=["AT","GU","SH","SN","AR","TR","SP","OP"];
+function affOne(c,k){
+  if(!k)return true;
+  if(k==="border")return !isNei(c);
+  if(k==="tama")return TAMA.includes(c.team);
+  if(k==="nei")return isNei(c);
+  if(k==="aft")return c.team==="アフトクラトル";
+  if(k==="gal")return c.team==="ガロプラ";
+  return true;
+}
+function affOK(c,set){return set.size===0||Array.from(set).some(k=>affOne(c,k))}
+function togSet(set,v){if(v==="")set.clear();else if(set.has(v))set.delete(v);else set.add(v)}
+function sval(c,key){
+  if(key==="total")return c.total;
+  const i=+key;
+  if(c.pos==="OP")return i===0?c.st[0]:null;
+  return c.st[i];
+}
 function list(){
   app.innerHTML=`${topbar()}<h1>キャラクター一覧</h1>
   <input id="q" type="search" placeholder="名前・読み・所属隊・ポジションで検索" value="${q}" aria-label="検索">
+  <div class="sortbar"><select id="sk" aria-label="並び替え"><option value="">初期の並び順</option><option value="total">総合値</option>${KEYS.map((k,i)=>`<option value="${i}">${k}</option>`).join("")}</select>
+  <div class="seg" id="sd"><button data-v="desc">高い順</button><button data-v="asc">低い順</button></div></div>
+  <div class="fl">所属で絞り込み（複数選択可）</div><div class="chips" id="fa"><button class="chip" data-v="">すべて</button>${AFFS.map(([k,l])=>`<button class="chip" data-v="${k}">${l}</button>`).join("")}</div>
+  <div class="fl">ポジションで絞り込み（複数選択可）</div><div class="chips" id="fp"><button class="chip" data-v="">すべて</button>${POSL.map(p=>`<button class="chip" data-v="${p}">${PN[p]}</button>`).join("")}</div>
+  <div class="fl">その他の条件</div><div class="chips" id="fo"><button class="chip" data-v="nobt">ブラックトリガー・角トリガー使いを除く</button></div>
   <div class="cnt" id="cnt"></div><div id="ls"></div>`;
-  const inp=document.getElementById("q");
+  const inp=document.getElementById("q"),sk=document.getElementById("sk"),sd=document.getElementById("sd");
+  sk.value=SORT.key;
   inp.oninput=()=>{q=inp.value;render()};
+  sk.onchange=()=>{SORT.key=sk.value;render()};
+  Array.from(sd.querySelectorAll("button")).forEach(b=>{b.onclick=()=>{SORT.dir=b.dataset.v;render()}});
+  const fa=document.getElementById("fa"),fp=document.getElementById("fp"),fo=document.getElementById("fo");
+  Array.from(fo.querySelectorAll("button")).forEach(b=>{b.onclick=()=>{FILT.noBlack=!FILT.noBlack;render()}});
+  Array.from(fa.querySelectorAll("button")).forEach(b=>{b.onclick=()=>{togSet(FILT.aff,b.dataset.v);render()}});
+  Array.from(fp.querySelectorAll("button")).forEach(b=>{b.onclick=()=>{togSet(FILT.pos,b.dataset.v);render()}});
   render();
   function render(){
     const k=norm(q);
-    const r=DATA.filter(c=>!k||sidx(c).includes(k));
+    let r=DATA.filter(c=>(!k||sidx(c).includes(k))&&affOK(c,FILT.aff)&&(FILT.pos.size===0||FILT.pos.has(c.pos))&&!(FILT.noBlack&&isBlack(c)));
+    Array.from(fo.querySelectorAll("button")).forEach(b=>b.classList.toggle("on",FILT.noBlack));
+    Array.from(fa.querySelectorAll("button")).forEach(b=>b.classList.toggle("on",b.dataset.v===""?FILT.aff.size===0:FILT.aff.has(b.dataset.v)));
+    Array.from(fp.querySelectorAll("button")).forEach(b=>b.classList.toggle("on",b.dataset.v===""?FILT.pos.size===0:FILT.pos.has(b.dataset.v)));
+    const key=SORT.key,label=key==="total"?"合計":KEYS[+key];
+    if(key!==""){
+      r=r.map((c,i)=>({c,i,v:sval(c,key)})).sort((x,y)=>{
+        const tier=o=>o.c.pos==="OP"?2:(o.v==null?1:0);
+        const tx=tier(x),ty=tier(y);
+        if(tx!==ty)return tx-ty;
+        const xn=x.v==null||x.c.pos==="OP",yn=y.v==null||y.c.pos==="OP";
+        if(xn||yn)return xn&&yn?x.i-y.i:(xn?1:-1);
+        return (SORT.dir==="desc"?y.v-x.v:x.v-y.v)||x.i-y.i;
+      }).map(o=>o.c);
+    }
+    sd.classList.toggle("dis",key==="");
+    Array.from(sd.querySelectorAll("button")).forEach(b=>b.classList.toggle("on",key!==""&&b.dataset.v===SORT.dir));
     document.getElementById("cnt").textContent=r.length+"人";
-    document.getElementById("ls").innerHTML=r.length?r.map(c=>rowHTML(c)).join(""):'<p class="sub">該当する隊員がいません。別のキーワードで試してください。</p>';
+    document.getElementById("ls").innerHTML=r.length?r.map(c=>{
+      if(key==="")return rowHTML(c);
+      const v=sval(c,key);
+      return rowHTML(c,`${c.team}　<b>${label} ${v==null?"不明":v}</b>`);
+    }).join(""):'<p class="sub">該当する隊員がいません。別のキーワードで試してください。</p>';
   }
 }
 
