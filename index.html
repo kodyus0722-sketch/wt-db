@@ -50,6 +50,7 @@ button.pos{border:0;font-family:inherit;cursor:pointer}.lk{background:none;borde
 .score{text-align:center;font-size:56px;font-weight:700;color:var(--ac);margin:8px 0}.score small{font-size:20px;color:var(--sub);font-weight:400}
 .rt td:first-child{width:2.2em;color:var(--sub)}.rt td{font-size:14px;word-break:break-all}.rt td:last-child{font-size:15px;white-space:nowrap}
 .optrow{text-align:center;margin:18px 0}.pbox h3{margin:14px 0 6px;font-size:15px}
+ruby rt{font-size:.5em;font-weight:400;color:var(--sub);letter-spacing:.02em}.aname ruby rt{font-size:.42em}
 .note{color:var(--sub);font-size:12px;margin-top:14px}
 </style>
 </head>
@@ -154,7 +155,7 @@ const RAW=`忍田真史|ボーダー本部|AT|7,14,9,7,10,3,10,2|62
 船橋了午|早川隊|GU|-,-,-,-,-,-,-,-|
 丸井星司|早川隊|GU|-,-,-,-,-,-,-,-|
 常盤守|常盤隊|AT|-,-,-,-,-,-,-,-|
-斎藤鴉哉|常盤隊|SN|-,-,-,-,-,-,-,-|
+斎藤鴇哉|常盤隊|SN|-,-,-,-,-,-,-,-|
 宇都宮和歌|常盤隊|GU|-,-,-,-,-,-,-,-|
 計良佳伸|常盤隊|AT|-,-,-,-,-,-,-,-|
 北添秀高|吉里隊|AR|5,4,4,5,4,4,2,3|31
@@ -361,7 +362,7 @@ const VER_RAW=`太刀川慶|弧月,旋空,シールド,グラスホッパー|弧
 船橋了午|アステロイド：突撃銃,ハウンド：突撃銃,シールド,|,,シールド,バッグワーム
 丸井星司|メテオラ：擲弾銃,ハウンド：突撃銃,シールド,|,スタアメーカー,シールド,バッグワーム
 常盤守|弧月,旋空,シールド,|バッグワーム,サイレンサー,シールド,
-斎藤鴉哉|イーグレット,ライトニング,シールド,|バッグワーム,サイレンサー,シールド,
+斎藤鴇哉|イーグレット,ライトニング,シールド,|バッグワーム,サイレンサー,シールド,
 宇都宮和歌|ハウンド：突撃銃,アステロイド：突撃銃,シールド,|バッグワーム,サイレンサー,シールド,
 計良佳伸|弧月,旋空,シールド,|バッグワーム,サイレンサー,シールド,
 茶野真|アステロイド：拳銃,ハウンド：拳銃,シールド,|アステロイド：拳銃,バッグワーム,シールド,
@@ -393,16 +394,22 @@ function tsets(c){
 }
 function rowHTML(c,tag){return `<button class="item" data-h="#c${c.id}"><span class="pos">${c.pos}</span><span class="nm">${c.name}</span><span class="tm">${tag===undefined?c.team:tag}</span></button>`}
 
+function sidx(c){
+  if(c._s)return c._s;
+  const base=c.name.replace(/（.*?）/g,""),rd=READ[base],f=[c.name,base,c.team,c.pos,PN[c.pos]||""];
+  if(rd){rd.rs.forEach(a=>f.push(a));rd.rg.forEach(a=>f.push(a));rd.rs.forEach(a=>rd.rg.forEach(b=>f.push(a+b)))}
+  return c._s=f.map(norm).join("|");
+}
 function list(){
   app.innerHTML=`${topbar()}<h1>キャラクター一覧</h1>
-  <input id="q" type="search" placeholder="名前・所属隊・ポジションで検索" value="${q}" aria-label="検索">
+  <input id="q" type="search" placeholder="名前・読み・所属隊・ポジションで検索" value="${q}" aria-label="検索">
   <div class="cnt" id="cnt"></div><div id="ls"></div>`;
   const inp=document.getElementById("q");
   inp.oninput=()=>{q=inp.value;render()};
   render();
   function render(){
-    const k=q.trim().toLowerCase();
-    const r=DATA.filter(c=>!k||(c.name+c.team+c.pos+(PN[c.pos]||"")).toLowerCase().includes(k));
+    const k=norm(q);
+    const r=DATA.filter(c=>!k||sidx(c).includes(k));
     document.getElementById("cnt").textContent=r.length+"人";
     document.getElementById("ls").innerHTML=r.length?r.map(c=>rowHTML(c)).join(""):'<p class="sub">該当する隊員がいません。別のキーワードで試してください。</p>';
   }
@@ -488,7 +495,7 @@ function detail(id,keep){
   const hidP=P.m==="hidden"?P.act:new Set();
   const team=c.team&&c.team!=="—"?`<button class="lk" data-h="#t/${enc(c.team)}">${c.team}</button>`:(c.team||"—");
   app.innerHTML=`${topbar()}<button class="back" data-a="back">‹ 戻る</button>
-  <div class="head"><button class="pos" data-h="#p/${enc(c.pos)}" aria-label="同じポジションの一覧">${c.pos}</button><h2>${c.name}</h2></div>
+  <div class="head"><button class="pos" data-h="#p/${enc(c.pos)}" aria-label="同じポジションの一覧">${c.pos}</button><h2>${nameRuby(c.name)}</h2></div>
   <div class="sub">所属隊：${team}　ポジション：${PN[c.pos]||"—"}</div>
   <div class="hdr"><h3>パラメータ</h3><div class="ctl">${ctlBar("p",P)}</div></div>
   <div class="chart">${radar(c.st,keys,c.total,isOp,hidP)}</div>
@@ -541,7 +548,7 @@ const READ={};
 林藤|匠|りんどう|たくみ
 沢村|響子|さわむら|きょうこ
 寺島|雷蔵|てらしま|らいぞう
-天羽|月彦|あまう|つきひこ
+天羽|月彦|あもう|つきひこ
 迅|悠一|じん|ゆういち
 太刀川|慶|たちかわ|けい
 出水|公平|いずみ|こうへい
@@ -571,7 +578,7 @@ const READ={};
 桃園|藤一郎|ももぞの|とういちろう
 尼倉|亜澄|あまくら|あすみ
 木崎|レイジ|きざき|れいじ
-小南|桐絵|こなみ|とうえ
+小南|桐絵|こなみ|きりえ
 烏丸|京介|からすま|きょうすけ
 二宮|匡貴|にのみや|まさたか
 犬飼|澄晴|いぬかい|すみはる
@@ -591,7 +598,7 @@ const READ={};
 帯島|ユカリ|おびしま|ゆかり
 外岡|一斗|とのおか|かずと
 来馬|辰也|くるま|たつや
-村上|鋼|むらかみ|てつ
+村上|鋼|むらかみ|こう
 別役|太一|べつやく|たいち
 東|春秋|あずま|はるあき
 小荒井|登|こあらい|のぼる
@@ -620,7 +627,7 @@ const READ={};
 漆間|恒|うるしま|わたる
 松代|仁|まつしろ|ひとし
 箱田|正邦|はこだ|まさくに
-土崎|祐也|つちさき|ゆうや
+土崎|祐也|つちざき|ゆうや
 海老名|貴大|えびな|たかひろ
 乙川|由紀人|おとかわ|ゆきと
 茂手木|翔|もてぎ|しょう
@@ -628,7 +635,7 @@ const READ={};
 船橋|了午|ふなばし|りょうご
 丸井|星司|まるい|せいじ
 常盤|守|ときわ|まもる
-斎藤|鴉哉|さいとう|ときや
+斎藤|鴇哉|さいとう|ときや
 宇都宮|和歌|うつのみや|わか
 計良|佳伸|けら|よしのぶ
 北添|秀高|きたぞえ|ひでたか
@@ -636,11 +643,40 @@ const READ={};
 間宮|桂三|まみや|けいぞう
 鯉沼|三弥|こいぬま|みつや
 秦|稔|はた|みのる
-甲田|照輝|こうだ|てるき
-早乙女|文史|そうとめ|ふみし
-丙|秀英|ひのえ/へい|ひでえい/しゅうえい/ひでひで
+甲田|照輝|こうだ|てるてる
+早乙女|文史|さおとめ|ふみふみ
+丙|秀英|ひのえ|ひでひで
 夏目|出穂|なつめ|いずほ
-林藤|陽太郎|りんどう|ようたろう`.split("\n").forEach(l=>{const[a,b,c,d]=l.split("|");READ[a+b]={s:a,g:b,rs:c.split("/"),rg:d.split("/")}});
+林藤|陽太郎|りんどう|ようたろう
+国近|柚宇|くにちか|ゆう
+真木|理佐|まき|りさ
+三上|歌歩|みかみ|かほ
+草壁|早紀|くさかべ|さき
+綾辻|遥|あやつじ|はるか
+小早川|杏|こばやかわ|あん
+月見|蓮|つきみ|れん
+結束|夏凛|ゆいつか|かりん
+宇佐美|栞|うさみ|しおり
+氷見|亜季|ひやみ|あき
+仁礼|光|にれ|ひかり
+細井|真織|ほそい|まおり
+藤丸|のの|ふじまる|のの
+橘高|羽矢|きったか|はや
+今|結花|こん|ゆか
+人見|摩子|ひとみ|まこ
+染井|華|そめい|はな
+小佐野|瑠衣|おさの|るい
+加賀美|倫|かがみ|りん
+志岐|小夜子|しき|さよこ
+宇井|真登華|うい|まどか
+六田|梨香|ろくた|りか
+武富|桜子|たけとみ|さくらこ
+十倉|恵|とくら|めぐみ
+朝霧|あすか|あさぎり|あすか
+楠本|葵|くすもと|あおい
+羽鳥|歩|はとり|あゆむ
+田屋|麻美|たや|あさみ
+七尾|葉月|ななお|はづき`.split("\n").forEach(l=>{const[a,b,c,d]=l.split("|");READ[a+b]={s:a,g:b,rs:c.split("/"),rg:d.split("/")}});
 const norm=t=>(t||"").normalize("NFKC").replace(/[ァ-ヶ]/g,ch=>String.fromCharCode(ch.charCodeAt(0)-0x60)).replace(/[\s・･·.]/g,"").toLowerCase();
 /* 判定：3=漢字フルネーム一致 / 2=姓・名とも読み(または漢字)一致 / 1=姓のみ または 名のみ一致 / 0=不一致 */
 function judge(name,input){
@@ -655,6 +691,11 @@ function judge(name,input){
   if(sp!==undefined){const rest=x.slice(sp.length);return rest===""?1:(G.includes(rest)?2:1)}
   if(G.includes(x))return 1;
   return G.some(t=>x.endsWith(t)&&x.length>t.length)?1:0;
+}
+function nameRuby(name){
+  const m=name.match(/^([^（]+)(（.*）)?$/),base=m?m[1]:name,suf=m&&m[2]?m[2]:"";
+  const r=READ[base];
+  return r?`<ruby>${base}<rt>${r.rs[0]} ${r.rg[0]}</rt></ruby>${suf}`:name;
 }
 const TIERS={hard:["不正解","姓または名の読みが正解","姓・名の読みが正解","フルネーム（漢字）まで正解"],normal:["不正解","姓または名が正解","フルネームの読みが正解"],easy:["不正解","姓または名が正解"]};
 function submitAnswer(){
@@ -681,7 +722,7 @@ function quizPlay(){
   const bar=qbar(`第${QZ.i+1}問 / ${QZ.items.length}`);
   const same=isC?[]:QZ.groups[setKey(c)]||[];
   const qSame=same.length>1?`<p class="same">同じトリガーセットのキャラクター：${same.length}人（正解を含む）</p>`:"";
-  const nl=n=>`<button class="nlk" data-a="pop" data-n="${n}">${n}</button>`;
+  const nl=n=>`<button class="nlk" data-a="pop" data-n="${n}">${nameRuby(n)}</button>`;
   const aSame=same.length>1?`<div class="same">同じトリガーセットのキャラクター（${same.length}人）<br>${same.map(nl).join("、")}</div>`:"";
   if(QZ.phase==="q"){
     const ask=QZ.typed?`<div class="ansbox"><input id="ans" type="text" placeholder="キャラクター名を入力（例：三雲 修）" autocomplete="off" autocapitalize="off" spellcheck="false"></div><div class="qb"><button class="btn pri big" data-a="qans">回答する</button></div>`:`<div class="qb"><button class="btn pri big" data-a="qans">回答を見る</button></div>`;
@@ -733,7 +774,7 @@ function popHTML(c){
     for(let i=0;i<n;i++)g+=(ts.S?pc("サブ",i,ts.S[i],fr):"<div></div>")+pc("メイン",i,ts.M[i],fr);
     trg=`<div class="tg"><div class="th">サブトリガー</div><div class="th">メイントリガー</div>${g}</div><p class="sub" style="font-size:12px">${ts.ver?"出典：公式データブック BORDER BRIEFING FILE（枠の位置まで確認済み）":"枠の位置は未確認です。参照元の記載順に表示しています。"}</p>`;
   }
-  return `<div class="head"><span class="pos">${c.pos}</span><h2>${c.name}</h2></div>
+  return `<div class="head"><span class="pos">${c.pos}</span><h2>${nameRuby(c.name)}</h2></div>
   <div class="sub">所属隊：${c.team||"—"}　ポジション：${PN[c.pos]||"—"}</div>
   <h3>パラメータ</h3><div class="chart">${radar(c.st,keys,c.total,isOp,new Set())}</div>
   <h3>トリガーセット</h3>${trg}${SRC}`;
