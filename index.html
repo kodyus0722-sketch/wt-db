@@ -39,11 +39,16 @@ button.pos{border:0;font-family:inherit;cursor:pointer}.lk{background:none;borde
 .bigbtn{display:block;width:100%;padding:22px 16px;margin:14px 0;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--fg);font:inherit;font-size:18px;font-weight:700;cursor:pointer;text-align:center}.bigbtn small{display:block;font-weight:400;font-size:13px;color:var(--sub);margin-top:4px}
 .qbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}.qn{font-weight:700}.qt{font-size:18px;margin:8px 0}.qb{margin:18px 0;text-align:center}.btn.big{padding:14px 34px;font-size:16px}.aname{font-size:28px;margin:4px 0}.ans{text-align:center;margin:8px 0}
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:10;padding:16px}.modal[hidden]{display:none}.mbox{background:var(--card);color:var(--fg);border-radius:14px;padding:22px;max-width:320px;width:100%;text-align:center}.mbox p{margin:0 0 16px;font-size:16px;font-weight:700}.mbtns{display:flex;gap:10px;justify-content:center}
+.tgl{display:flex;align-items:center;gap:12px;padding:14px;background:var(--card);border-radius:12px;margin:12px 0;cursor:pointer}.tgl input{width:22px;height:22px;flex:none}.tgl small{display:block;color:var(--sub);font-size:12px;margin-top:2px}.same{margin:8px 0;font-size:14px;color:var(--sub);text-align:center}.same b{color:var(--fg)}
+.nlk{background:none;border:0;padding:0;font:inherit;color:var(--ac);font-weight:700;text-decoration:underline;cursor:pointer}.aname .nlk{font-size:28px}
+.pbox{position:relative;background:var(--card);color:var(--fg);border-radius:14px;padding:44px 16px 16px;max-width:520px;width:100%;max-height:88vh;overflow:auto;text-align:left}.pbox .chart{background:var(--bg)}.pbox .slot{background:var(--bg)}
+.x{position:absolute;top:8px;right:10px;width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--bg);color:var(--fg);font-size:20px;line-height:1;cursor:pointer}
 .note{color:var(--sub);font-size:12px;margin-top:14px}
 </style>
 </head>
 <body>
 <div class="wrap" id="app"></div>
+<div class="modal" id="pop" hidden><div class="pbox" role="dialog" aria-modal="true"><button class="x" id="px" aria-label="閉じる">×</button><div id="pbody"></div></div></div>
 <div class="modal" id="modal" hidden><div class="mbox"><p>本当に終了しますか？</p><div class="mbtns"><button class="btn pri" id="mok">OK</button><button class="btn" id="mno">キャンセル</button></div></div></div>
 <script>
 const KEYS=["トリオン","攻撃","防御・援護","機動","技術","射程","指揮","特殊戦術"];
@@ -421,7 +426,8 @@ function radar(st,keys,total,isOp,hid){
   st.forEach((v,i)=>{if(v==null||H(i))return;const[x,y]=pt(i,v);s+=`<circle cx="${x}" cy="${y}" r="3.5" fill="var(--ac)"/>`});
   s+=`</g>`;
   keys.forEach((k,i)=>{const[x,y]=pt(i,M+1.9);const an=Math.abs(x-cx)<5?"middle":x>cx?"start":"end";
-    s+=`<text x="${x}" y="${y+4}" text-anchor="${an}" font-size="12" fill="var(--fg)">${k} <tspan font-weight="700" fill="var(--ac)">${H(i)?"？":(st[i]??"—")}</tspan></text>`});
+    const val=H(i)?"？":(st[i]??"—"),wrap=k==="防御・援護";
+    s+=`<text x="${x}" y="${y+4}" text-anchor="${an}" font-size="12" fill="var(--fg)">${k}${wrap?"":" "}<tspan${wrap?` x="${x}" dy="15"`:""} font-weight="700" fill="var(--ac)">${val}</tspan></text>`});
   s+=`<text x="8" y="272" font-size="13" fill="var(--sub)">合計${isOp?"（トリオン除く）":""} <tspan font-weight="700" font-size="16" fill="var(--fg)">${hid.size?"？":(total??"—")}</tspan></text>`;
   return s+"</svg>";
 }
@@ -483,6 +489,8 @@ function detail(id,keep){
 
 /* ---------- ホーム・クイズ ---------- */
 let QZ=null;
+let MINOR=false;
+const MINOR_SET=(()=>{const a=DATA.findIndex(c=>c.name==="茶野真"),b=DATA.findIndex(c=>c.name==="丙秀英");return DATA.slice(a,b+1).filter(c=>c.team!=="漆間隊").map(c=>c.name)})();
 const modal=document.getElementById("modal");
 function home(){
   app.innerHTML=`<h1>ボーダー隊員データベース</h1><p class="sub">ワールドトリガーの隊員データを見る・クイズで遊ぶ</p>
@@ -493,18 +501,22 @@ function home(){
 const qbar=t=>`<div class="qbar"><span class="qn">${t}</span><button class="btn" data-a="endq">終了する</button></div>`;
 function quizSelect(){
   app.innerHTML=`${qbar("クイズ")}<h2 class="qt">クイズの種類を選んでください</h2>
+  <label class="tgl"><input type="checkbox" data-a="minor"${MINOR?" checked":""}><span>出題範囲にマイナーキャラを追加<small>オフ：一覧の茶野隊〜丙秀英の間のキャラ（漆間隊を除く）を出題しない／オン：出題する<br>※ 除外対象のキャラと同じトリガーセットのキャラが除外対象外にいる場合、そのトリガーセットは出題される可能性があります</small></span></label>
   <button class="bigbtn" data-a="qstart" data-s="chart">チャートクイズ<small>パラメーターのチャートから当てる（10問）</small></button>
   <button class="bigbtn" data-a="qstart" data-s="trig">トリガーセットクイズ<small>メイン・サブのトリガーセットから当てる（10問）</small></button>`;
   scrollTo(0,0);
 }
-function qPool(type){return DATA.filter(c=>c.pos!=="OP"&&(type==="chart"?c.st.every(v=>v!=null):!!VER[c.name]))}
+function qPool(type){return DATA.filter(c=>c.pos!=="OP"&&(MINOR||!MINOR_SET.includes(c.name))&&(type==="chart"?c.st.every(v=>v!=null):!!VER[c.name]))}
+const setKey=c=>{const v=VER[c.name];return JSON.stringify([v.main.map(x=>x||""),v.sub.map(x=>x||"")])};
 function startQuiz(type){
   const pool=qPool(type);
   for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]]}
-  QZ={type,items:pool.slice(0,10),i:0,phase:"q"};
+  const groups={};
+  if(type==="trig")DATA.filter(c=>c.pos!=="OP"&&VER[c.name]).forEach(c=>{(groups[setKey(c)]=groups[setKey(c)]||[]).push(c.name)});
+  QZ={type,items:pool.slice(0,10),i:0,phase:"q",groups};
   if(location.hash==="#qp")quizPlay();else location.hash="#qp";
 }
-function pc(k,n,v){let cls="slot",b=v;if(v==="■"){cls+=" blk";b="黒塗り"}else if(!v){cls+=" free";b="FREE"}return `<div class="${cls}"><span class="sn">${k}${n+1}</span><span class="sv">${b}</span></div>`}
+function pc(k,n,v,fr){let cls="slot",b=v;if(v==="■"){cls+=" blk";b="黒塗り"}else if(!v){cls+=" free";b=fr||"FREE"}return `<div class="${cls}"><span class="sn">${k}${n+1}</span><span class="sv">${b}</span></div>`}
 function qtrig(c){
   const v=VER[c.name],n=Math.max(v.main.length,v.sub.length);let g="";
   for(let i=0;i<n;i++)g+=pc("サブ",i,v.sub[i])+pc("メイン",i,v.main[i]);
@@ -515,10 +527,40 @@ function quizPlay(){
   const c=QZ.items[QZ.i],isC=QZ.type==="chart",last=QZ.i===QZ.items.length-1;
   const body=isC?`<div class="chart">${radar(c.st,KEYS,c.total,false,new Set())}</div>`:qtrig(c);
   const bar=qbar(`第${QZ.i+1}問 / ${QZ.items.length}`);
-  if(QZ.phase==="q")app.innerHTML=`${bar}<h2 class="qt">${isC?"このチャートのキャラクターは？":"このトリガーセットのキャラクターは？"}</h2>${body}<div class="qb"><button class="btn pri big" data-a="qans">回答を見る</button></div>`;
-  else app.innerHTML=`${bar}<div class="ans"><div class="sub">答え</div><h2 class="aname">${c.name}</h2></div>${body}<div class="qb"><button class="btn pri big" data-a="qnext">${last?"ホームへ戻る":"次へ"}</button></div>`;
+  const same=isC?[]:QZ.groups[setKey(c)]||[];
+  const qSame=same.length>1?`<p class="same">同じトリガーセットのキャラクター：${same.length}人（正解を含む）</p>`:"";
+  const nl=n=>`<button class="nlk" data-a="pop" data-n="${n}">${n}</button>`;
+  const aSame=same.length>1?`<div class="same">同じトリガーセットのキャラクター（${same.length}人）<br>${same.map(nl).join("、")}</div>`:"";
+  if(QZ.phase==="q")app.innerHTML=`${bar}<h2 class="qt">${isC?"このチャートのキャラクターは？":"このトリガーセットのキャラクターは？"}</h2>${qSame}${body}<div class="qb"><button class="btn pri big" data-a="qans">回答を見る</button></div>`;
+  else app.innerHTML=`${bar}<div class="ans"><div class="sub">答え</div><h2 class="aname">${nl(c.name)}</h2><div class="same" style="margin-top:0">名前をタップすると詳細を見られます</div>${aSame}</div>${body}<div class="qb"><button class="btn pri big" data-a="qnext">${last?"ホームへ戻る":"次へ"}</button></div>`;
   scrollTo(0,0);
 }
+const pop=document.getElementById("pop"),pbody=document.getElementById("pbody");
+function popHTML(c){
+  const isOp=c.pos==="OP",keys=isOp?KEYS_OP:KEYS;
+  const ts=tsets(c);
+  let trg;
+  if(isOp)trg='<p class="sub">オペレーターのため、戦闘用トリガーは装備しません。</p>';
+  else if(!ts)trg='<p class="sub">参照元にデータがありません。</p>';
+  else{
+    const fr=ts.ver?"FREE":"FREE?",n=Math.max(ts.M.length,ts.S?ts.S.length:0);let g="";
+    for(let i=0;i<n;i++)g+=(ts.S?pc("サブ",i,ts.S[i],fr):"<div></div>")+pc("メイン",i,ts.M[i],fr);
+    trg=`<div class="tg"><div class="th">サブトリガー</div><div class="th">メイントリガー</div>${g}</div><p class="sub" style="font-size:12px">${ts.ver?"出典：公式データブック BORDER BRIEFING FILE（枠の位置まで確認済み）":"枠の位置は未確認です。参照元の記載順に表示しています。"}</p>`;
+  }
+  return `<div class="head"><span class="pos">${c.pos}</span><h2>${c.name}</h2></div>
+  <div class="sub">所属隊：${c.team||"—"}　ポジション：${PN[c.pos]||"—"}</div>
+  <h3>パラメータ</h3><div class="chart">${radar(c.st,keys,c.total,isOp,new Set())}</div>
+  <h3>トリガーセット</h3>${trg}`;
+}
+function openPop(name){
+  const c=DATA.find(d=>d.name===name);
+  if(!c)return;
+  pbody.innerHTML=popHTML(c);
+  pop.hidden=false;
+  const box=pop.firstElementChild;if(box&&box.scrollTo)box.scrollTo(0,0);
+}
+document.getElementById("px").onclick=()=>{pop.hidden=true};
+pop.onclick=e=>{if(e.target===pop)pop.hidden=true};
 document.getElementById("mno").onclick=()=>{modal.hidden=true};
 document.getElementById("mok").onclick=()=>{modal.hidden=true;QZ=null;if(location.hash==="")route();else location.hash=""};
 
@@ -529,6 +571,8 @@ app.onclick=e=>{
   const a=el.dataset.a,s=el.dataset.s;
   if(a==="back"){location.hash=(from&&from!==cur)?from:"#list";return}
   if(a==="endq"){modal.hidden=false;return}
+  if(a==="minor"){MINOR=el.checked;return}
+  if(a==="pop"){openPop(el.dataset.n);return}
   if(a==="qstart"){startQuiz(s);return}
   if(a==="qans"&&QZ){QZ.phase="a";quizPlay();return}
   if(a==="qnext"&&QZ){if(QZ.i<QZ.items.length-1){QZ.i++;QZ.phase="q";quizPlay()}else{QZ=null;location.hash=""}return}
@@ -547,6 +591,7 @@ app.onclick=e=>{
 };
 
 function route(){
+  pop.hidden=true;
   if(location.hash!==cur){from=cur;cur=location.hash}
   const h=decodeURIComponent(location.hash);
   let m;
