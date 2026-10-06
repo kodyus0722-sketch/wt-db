@@ -940,6 +940,11 @@ app.onkeydown=e=>{
 };
 
 function route(){
+  /* クイズ中はブラウザの戻る・進むを無効化：#qp 以外へ移動したら #qp に戻す */
+  if(QZ){
+    if(location.hash!=="#qp"){location.hash="#qp";return}
+    if(location.hash===cur)return;
+  }
   pop.hidden=true;opt.hidden=true;
   if(location.hash!==cur){
     if(location.hash==="")stack=[];
