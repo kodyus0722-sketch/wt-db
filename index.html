@@ -44,18 +44,22 @@ button.pos{border:0;font-family:inherit;cursor:pointer}.lk{background:none;borde
 .pbox{position:relative;background:var(--card);color:var(--fg);border-radius:14px;padding:44px 16px 16px;max-width:520px;width:100%;max-height:88vh;overflow:auto;text-align:left}.pbox .chart{background:var(--bg)}.pbox .slot{background:var(--bg)}
 .x{position:absolute;top:8px;right:10px;width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--bg);color:var(--fg);font-size:20px;line-height:1;cursor:pointer}
 .src{font-size:12px;color:var(--sub);margin:18px 0 6px;line-height:1.7;text-align:left}.src a{color:var(--ac)}
-.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}.homebtn{width:40px;height:40px;border-radius:6px;border:1px solid var(--line);background:var(--card);color:var(--fg);display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}.topbar .ttl{flex:1;margin:0 0 0 12px;font-size:20px;letter-spacing:.04em}.homebtn{width:40px;height:40px;border-radius:6px;border:1px solid var(--line);background:var(--card);color:var(--fg);display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
 .ansbox{margin:14px 0 4px}.ansbox input{width:100%;padding:14px;font-size:16px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--fg)}
 .res{text-align:center;margin:10px 0;padding:12px;background:var(--card);border-radius:12px}.res .pt{font-size:36px;font-weight:700;color:var(--ac);margin:2px 0}
 .score{text-align:center;font-size:56px;font-weight:700;color:var(--ac);margin:8px 0}.score small{font-size:20px;color:var(--sub);font-weight:400}
 .rt td:first-child{width:2.2em;color:var(--sub)}.rt td{font-size:14px;word-break:break-all}.rt td:last-child{font-size:15px;white-space:nowrap}
-.optrow{text-align:center;margin:18px 0}.pbox h3{margin:14px 0 6px;font-size:15px}
+.mfoot{display:flex;gap:10px;justify-content:center;margin:18px 0 4px;flex-wrap:wrap}.optrow{text-align:center;margin:18px 0}.pbox h3{margin:14px 0 6px;font-size:15px}
 ruby rt{font-size:.5em;font-weight:400;color:var(--sub);letter-spacing:.02em}.aname ruby rt{font-size:.42em}
 .sortbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0 0}.sortbar select{flex:1;min-width:150px;padding:10px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--fg);font-size:14px}
 .seg{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}.seg button{border:0;background:var(--card);color:var(--fg);padding:10px 14px;font:inherit;font-size:14px;cursor:pointer}.seg button.on{background:var(--ac);color:var(--bg)}.seg.dis{opacity:.4;pointer-events:none}
 .fl{font-size:12px;color:var(--sub);margin-top:12px}.chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 2px}
 .chip{border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:999px;padding:6px 12px;font:inherit;font-size:13px;cursor:pointer}.chip.on{background:var(--ac);color:var(--bg);border-color:var(--ac)}
 .item .tm b{color:var(--fg)}
+.pnbox{border:1px solid var(--line);border-radius:12px;margin:12px 0 4px;overflow:hidden}.tgbtn{display:block;width:100%;margin:0;border:0;border-radius:0;background:var(--card);text-align:left;font-size:14px;padding:12px 14px}.pnbox #pn{padding:2px 14px 14px;border-top:1px solid var(--line)}.pnbox .sortbar{margin-top:10px}
+.ansl{display:block;font-size:12px;color:var(--sub);margin:6px 0 2px}.res .pt small{font-size:16px;color:var(--sub);font-weight:400}
+.qb2{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:0 0 18px}.qb2 .btn{flex:1;min-width:140px;max-width:220px}
+.aname.multi{line-height:1.8}.aname.multi .nlk{font-size:22px}
 .note{color:var(--sub);font-size:12px;margin-top:14px}
 </style>
 </head>
@@ -406,6 +410,7 @@ function sidx(c){
   return c._s=f.map(norm).join("|");
 }
 let SORT={key:"",dir:"desc"};
+let PANEL=false;
 let FILT={aff:new Set(),pos:new Set(),noBlack:false};
 const isBlack=c=>/黒トリガー装備|角トリガー装備|風刃装備/.test(c.name)||c.name==="天羽月彦";
 const isNei=c=>c.team==="アフトクラトル"||c.team==="ガロプラ";
@@ -430,13 +435,16 @@ function sval(c,key){
   return c.st[i];
 }
 function list(){
-  app.innerHTML=`${topbar()}<h1>キャラクター一覧</h1>
+  app.innerHTML=`${topbar("","キャラクター一覧")}
   <input id="q" type="search" placeholder="名前・読み・所属隊・ポジションで検索" value="${q}" aria-label="検索">
+  <div class="pnbox"><button class="btn tgbtn" id="tg" type="button"></button>
+  <div id="pn">
   <div class="sortbar"><select id="sk" aria-label="並び替え"><option value="">初期の並び順</option><option value="total">総合値</option>${KEYS.map((k,i)=>`<option value="${i}">${k}</option>`).join("")}</select>
   <div class="seg" id="sd"><button data-v="desc">高い順</button><button data-v="asc">低い順</button></div></div>
   <div class="fl">所属で絞り込み（複数選択可）</div><div class="chips" id="fa"><button class="chip" data-v="">すべて</button>${AFFS.map(([k,l])=>`<button class="chip" data-v="${k}">${l}</button>`).join("")}</div>
-  <div class="fl">ポジションで絞り込み（複数選択可）</div><div class="chips" id="fp"><button class="chip" data-v="">すべて</button>${POSL.map(p=>`<button class="chip" data-v="${p}">${PN[p]}</button>`).join("")}</div>
+  <div class="fl">ポジションで絞り込み（複数選択可）</div><div class="chips" id="fp"><button class="chip" data-v="">すべて</button>${POSL.map(p=>`<button class="chip" data-v="${p}">${p}</button>`).join("")}</div>
   <div class="fl">その他の条件</div><div class="chips" id="fo"><button class="chip" data-v="nobt">ブラックトリガー・角トリガー使いを除く</button></div>
+  </div></div>
   <div class="cnt" id="cnt"></div><div id="ls"></div>`;
   const inp=document.getElementById("q"),sk=document.getElementById("sk"),sd=document.getElementById("sd");
   sk.value=SORT.key;
@@ -447,9 +455,15 @@ function list(){
   Array.from(fo.querySelectorAll("button")).forEach(b=>{b.onclick=()=>{FILT.noBlack=!FILT.noBlack;render()}});
   Array.from(fa.querySelectorAll("button")).forEach(b=>{b.onclick=()=>{togSet(FILT.aff,b.dataset.v);render()}});
   Array.from(fp.querySelectorAll("button")).forEach(b=>{b.onclick=()=>{togSet(FILT.pos,b.dataset.v);render()}});
+  const tg=document.getElementById("tg"),pn=document.getElementById("pn");
+  tg.onclick=()=>{PANEL=!PANEL;render()};
   render();
   function render(){
     const k=norm(q);
+    const nAct=(SORT.key!==""?1:0)+FILT.aff.size+FILT.pos.size+(FILT.noBlack?1:0);
+    pn.hidden=!PANEL;
+    tg.textContent=`並び替え・絞り込み ${PANEL?"▲":"▼"}${nAct?`（${nAct}件適用中）`:""}`;
+    tg.setAttribute&&tg.setAttribute("aria-expanded",String(PANEL));
     let r=DATA.filter(c=>(!k||sidx(c).includes(k))&&affOK(c,FILT.aff)&&(FILT.pos.size===0||FILT.pos.has(c.pos))&&!(FILT.noBlack&&isBlack(c)));
     Array.from(fo.querySelectorAll("button")).forEach(b=>b.classList.toggle("on",FILT.noBlack));
     Array.from(fa.querySelectorAll("button")).forEach(b=>b.classList.toggle("on",b.dataset.v===""?FILT.aff.size===0:FILT.aff.has(b.dataset.v)));
@@ -578,7 +592,7 @@ function home(){
   <button class="bigbtn" data-h="#list">キャラクター一覧<small>名前・所属隊・ポジションで検索できます</small></button>`;
   scrollTo(0,0);
 }
-function topbar(right){return `<div class="topbar"><button class="homebtn" data-a="gohome" aria-label="ホームへ"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M3 11.5L12 4l9 7.5"/><path d="M5.5 10v10h5v-6h3v6h5V10"/></svg></button><div>${right||""}</div></div>`}
+function topbar(right,title){return `<div class="topbar"><button class="homebtn" data-a="gohome" aria-label="ホームへ"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M3 11.5L12 4l9 7.5"/><path d="M5.5 10v10h5v-6h3v6h5V10"/></svg></button>${title?`<h1 class="ttl">${title}</h1>`:""}<div>${right||""}</div></div>`}
 const qbar=t=>`${topbar('<button class="btn" data-a="endq">終了する</button>')}<div class="qn" style="margin:4px 0">${t}</div>`;
 function quizSelect(){
   app.innerHTML=`${topbar()}<div class="qn" style="margin:4px 0">クイズ</div><h2 class="qt">クイズの種類を選んでください</h2>
@@ -591,11 +605,13 @@ function qPool(type){return DATA.filter(c=>c.pos!=="OP"&&(MINOR||!MINOR_SET.incl
 const setKey=c=>{const v=VER[c.name];return JSON.stringify([v.main.map(x=>x||""),v.sub.map(x=>x||"")])};
 function startQuiz(type){
   const groups={};
-  if(type==="trig")DATA.filter(c=>c.pos!=="OP"&&VER[c.name]).forEach(c=>{(groups[setKey(c)]=groups[setKey(c)]||[]).push(c.name)});
+  if(type==="trig")qPool("trig").forEach(c=>{(groups[setKey(c)]=groups[setKey(c)]||[]).push(c.name)});
   let pool=qPool(type);
-  if(type==="trig"&&TYPED)pool=pool.filter(c=>groups[setKey(c)].length===1);
   for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]]}
-  QZ={type,items:pool.slice(0,10),i:0,phase:"q",groups,typed:!!TYPED,level:TYPED||null,per:({easy:1,normal:2,hard:3})[TYPED]||0,ans:[],pts:[]};
+  if(type==="trig"){const seen=new Set(),pick=[];for(const c of pool){const k=setKey(c);if(seen.has(k))continue;seen.add(k);pick.push(c);if(pick.length===10)break}pool=pick}
+  const items=pool.slice(0,10),per=({easy:1,normal:2,hard:3})[TYPED]||0;
+  const need=items.map(c=>type==="trig"?groups[setKey(c)].length:1);
+  QZ={type,items,i:0,phase:"q",groups,typed:!!TYPED,level:TYPED||null,per,need,max:need.reduce((p,q)=>p+q,0)*per,ans:[],pts:[],det:[]};
   if(location.hash==="#qp")quizPlay();else location.hash="#qp";
 }
 function pc(k,n,v,fr){let cls="slot",b=v;if(v==="■"){cls+=" blk";b="黒塗り"}else if(!v){cls+=" free";b=fr||"FREE"}return `<div class="${cls}"><span class="sn">${k}${n+1}</span><span class="sv">${b}</span></div>`}
@@ -759,40 +775,65 @@ function nameRuby(name){
   return r?`<ruby>${base}<rt>${r.rs[0]} ${r.rg[0]}</rt></ruby>${suf}`:name;
 }
 const TIERS={hard:["不正解","姓または名の読みが正解","姓・名の読みが正解","フルネーム（漢字）まで正解"],normal:["不正解","姓または名が正解","フルネームの読みが正解"],easy:["不正解","姓または名が正解"]};
+function mapPts(raw){return QZ.level==="easy"?(raw>=1?1:0):QZ.level==="normal"?(raw>=2?2:raw):raw}
+function bestAssign(names,inputs){
+  const n=names.length,sc=inputs.map(v=>names.map(nm=>mapPts(judge(nm,v))));
+  let best=-1,bestA=null;
+  (function rec(i,used,sum,a){
+    if(i===n){if(sum>best){best=sum;bestA=a.slice()}return}
+    for(let j=0;j<n;j++){if(used&(1<<j))continue;a[i]=j;rec(i+1,used|(1<<j),sum+sc[i][j],a)}
+  })(0,0,0,[]);
+  return{total:best,det:inputs.map((v,i)=>({input:v,name:names[bestA[i]],pt:sc[i][bestA[i]]}))};
+}
+const esc=t=>String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;");
+const answerNames=c=>QZ.type==="trig"?(QZ.groups[setKey(c)]||[c.name]):[c.name];
 function submitAnswer(){
   if(!QZ||QZ.phase!=="q")return;
   if(QZ.typed){
-    const el=document.getElementById("ans"),v=el&&typeof el.value==="string"?el.value:"";
-    const c=QZ.items[QZ.i];
-    const names=QZ.type==="trig"?(QZ.groups[setKey(c)]||[c.name]):[c.name];
-    const raw=Math.max(...names.map(n=>judge(n,v)));
-    QZ.ans[QZ.i]=v;QZ.pts[QZ.i]=QZ.level==="easy"?(raw>=1?1:0):QZ.level==="normal"?(raw>=2?2:raw):raw;
+    const c=QZ.items[QZ.i],names=answerNames(c),inputs=[];
+    for(let k=0;k<names.length;k++){const el=document.getElementById("ans"+k);inputs.push(el&&typeof el.value==="string"?el.value:"")}
+    const r=bestAssign(names,inputs);
+    QZ.ans[QZ.i]=inputs;QZ.pts[QZ.i]=r.total;QZ.det[QZ.i]=r.det;
   }
   QZ.phase="a";quizPlay();
 }
 function quizPlay(){
   if(!QZ){location.hash="";return}
   if(QZ.phase==="r"){
-    const total=QZ.pts.reduce((p,q)=>p+(q||0),0),max=QZ.items.length*QZ.per;
-    const rows=QZ.items.map((c,i)=>`<tr><td>${i+1}</td><td>${c.name}</td><td>${QZ.ans[i]?QZ.ans[i].replace(/</g,"&lt;"):"—"}</td><td>${QZ.pts[i]||0}点</td></tr>`).join("");
-    app.innerHTML=`${qbar("結果")}<h2 class="qt">リザルト</h2><div class="score">${total}<small> / ${max}点</small></div><table class="rt">${rows}</table><div class="qb"><button class="btn pri big" data-a="qhome">ホームへ戻る</button></div>`;
+    const total=QZ.pts.reduce((p,q)=>p+(q||0),0);
+    const rows=QZ.items.map((c,i)=>{
+      const an=(QZ.ans[i]||[]).filter(x=>x&&x.trim());
+      return `<tr><td>${i+1}</td><td>${answerNames(c).join("、")}</td><td>${an.length?an.map(esc).join("／"):"—"}</td><td>${QZ.pts[i]||0}点</td></tr>`;
+    }).join("");
+    app.innerHTML=`${qbar("結果")}<h2 class="qt">リザルト</h2><div class="score">${total}<small> / ${QZ.max}点</small></div><table class="rt">${rows}</table><div class="qb"><button class="btn pri big" data-a="qhome">ホームへ戻る</button></div><div class="qb2"><button class="btn big" data-a="qchange">条件を変えて遊ぶ</button><button class="btn big" data-a="qagain">もう一度遊ぶ</button></div>`;
     scrollTo(0,0);return;
   }
   const c=QZ.items[QZ.i],isC=QZ.type==="chart",last=QZ.i===QZ.items.length-1;
   const body=isC?`<div class="chart">${radar(c.st,KEYS,c.total,false,new Set())}</div>`:qtrig(c);
   const bar=qbar(`第${QZ.i+1}問 / ${QZ.items.length}`);
   const same=isC?[]:QZ.groups[setKey(c)]||[];
-  const qSame=same.length>1?`<p class="same">同じトリガーセットのキャラクター：${same.length}人（正解を含む）</p>`:"";
-  const nl=n=>`<button class="nlk" data-a="pop" data-n="${n}">${nameRuby(n)}</button>`;
-  const aSame=same.length>1?`<div class="same">同じトリガーセットのキャラクター（${same.length}人）<br>${same.map(nl).join("、")}</div>`:"";
+  const n=same.length>1?same.length:1;
+  const qSame=same.length>1?(QZ.typed?`<p class="same">同じトリガーセットのキャラクターが${n}人います。${n}人分の名前を入力してください（順不同）</p>`:`<p class="same">同じトリガーセットのキャラクター：${same.length}人（正解を含む）</p>`):"";
+  const nl=nm=>`<button class="nlk" data-a="pop" data-n="${nm}">${nameRuby(nm)}</button>`;
   if(QZ.phase==="q"){
-    const ask=QZ.typed?`<div class="ansbox"><input id="ans" type="text" placeholder="キャラクター名を入力（例：三雲 修）" autocomplete="off" autocapitalize="off" spellcheck="false"></div><div class="qb"><button class="btn pri big" data-a="qans">回答する</button></div>`:`<div class="qb"><button class="btn pri big" data-a="qans">回答を見る</button></div>`;
+    let boxes="";
+    if(QZ.typed)for(let k=0;k<n;k++)boxes+=`<div class="ansbox">${n>1?`<label class="ansl" for="ans${k}">回答${k+1}</label>`:""}<input id="ans${k}" type="text" placeholder="キャラクター名を入力（例：${({easy:"みくも おさむ",normal:"三雲 おさむ",hard:"三雲 修"})[QZ.level]||"三雲 修"}）" autocomplete="off" autocapitalize="off" spellcheck="false"></div>`;
+    const ask=QZ.typed?`${boxes}<div class="qb"><button class="btn pri big" data-a="qans">回答する</button></div>`:`<div class="qb"><button class="btn pri big" data-a="qans">回答を見る</button></div>`;
     app.innerHTML=`${bar}<h2 class="qt">${isC?"このチャートのキャラクターは？":"このトリガーセットのキャラクターは？"}</h2>${qSame}${body}${ask}${isC?SRC:""}`;
   }else{
-    const p=QZ.pts[QZ.i]||0;
-    const res=QZ.typed?`<div class="res"><div>あなたの回答：<b>${QZ.ans[QZ.i]?QZ.ans[QZ.i].replace(/</g,"&lt;"):"（未入力）"}</b></div><div class="pt">${p}点</div><div class="sub">${TIERS[QZ.level][p]}</div></div>`:"";
+    const p=QZ.pts[QZ.i]||0,det=QZ.det[QZ.i]||[];
+    let res="";
+    if(QZ.typed){
+      if(n>1){
+        const lines=det.map(d=>`<div>${d.input&&d.input.trim()?esc(d.input):"（未入力）"}${d.pt>0?` → ${d.name}`:""}（${d.pt}点）</div>`).join("");
+        res=`<div class="res"><div class="sub">あなたの回答（順不同で判定）</div>${lines}<div class="pt">${p}<small> / ${n*QZ.per}点</small></div></div>`;
+      }else{
+        const v=(det[0]&&det[0].input)||"";
+        res=`<div class="res"><div>あなたの回答：<b>${v.trim()?esc(v):"（未入力）"}</b></div><div class="pt">${p}点</div><div class="sub">${TIERS[QZ.level][p]}</div></div>`;
+      }
+    }
     const nextLabel=last?(QZ.typed?"結果を見る":"ホームへ戻る"):"次へ";
-    app.innerHTML=`${bar}${res}<div class="ans"><div class="sub">答え</div><h2 class="aname">${nl(c.name)}</h2><div class="same" style="margin-top:0">名前をタップすると詳細を見られます</div>${aSame}</div>${body}<div class="qb"><button class="btn pri big" data-a="qnext">${nextLabel}</button></div>${isC?SRC:""}`;
+    app.innerHTML=`${bar}${res}<div class="ans"><div class="sub">答え</div><h2 class="aname${same.length>1?" multi":""}">${(same.length>1?same:[c.name]).map(nl).join("、")}</h2><div class="same" style="margin-top:0">名前をタップすると詳細を見られます</div></div>${body}<div class="qb"><button class="btn pri big" data-a="qnext">${nextLabel}</button></div>${last&&!QZ.typed?'<div class="qb2"><button class="btn big" data-a="qchange">条件を変えて遊ぶ</button><button class="btn big" data-a="qagain">もう一度遊ぶ</button></div>':""}${isC?SRC:""}`;
   }
   scrollTo(0,0);
 }
@@ -801,13 +842,13 @@ const opt=document.getElementById("opt"),obody=document.getElementById("obody");
 function openOpt(){
   obody.innerHTML=`<h2 style="margin:0 0 4px">オプション</h2><p class="sub" style="font-size:12px;margin:0 0 6px">切り替えるとすぐに出題形式へ反映されます。</p>
   <h3>出題対象キャラ</h3>
-  <label class="tgl"><input type="checkbox" data-o="minor"${MINOR?" checked":""}><span>出題範囲にマイナーキャラを追加<small>対象：一覧の茶野隊〜丙秀英のキャラ（漆間隊を除く）<br>※ 同一トリガーセットのキャラが除外対象外にいる場合、出題の可能性あり</small></span></label>
+  <label class="tgl"><input type="checkbox" data-o="minor"${MINOR?" checked":""}><span>出題範囲にマイナーキャラを追加<small>対象：一覧の茶野隊〜丙秀英のキャラ（漆間隊を除く）<br>※ 同一トリガーセットのキャラが除外対象外にいる場合、そのトリガーセットは出題される可能性あり（正解には除外キャラを含めません）</small></span></label>
   <label class="tgl"><input type="checkbox" data-o="near"${NEAR?" checked":""}><span>出題範囲に近界民を追加<small>対象：アフトクラトル・ガロプラのキャラ（ヒュースを含む）</small></span></label>
   <h3>回答形式（手打ちで入力するモード）</h3>
   <label class="tgl"><input type="checkbox" data-o="easy"${TYPED==="easy"?" checked":""}><span>名前を手打ちで入力【簡単】<small>姓か名のどちらかが合っていれば正解（漢字・ひらがな可）<br>1問1点・満点10点</small></span></label>
-  <label class="tgl"><input type="checkbox" data-o="normal"${TYPED==="normal"?" checked":""}><span>名前を手打ちで入力【普通】<small>フルネームの読みが合っていれば2点、姓か名の片方だけなら1点<br>1問2点・満点20点</small></span></label>
+  <label class="tgl"><input type="checkbox" data-o="normal"${TYPED==="normal"?" checked":""}><span>名前を手打ちで入力【普通】<small>フルネームの読みが合っていれば2点、姓か名の片方だけなら1点（漢字・ひらがな可）<br>1問2点・満点20点</small></span></label>
   <label class="tgl"><input type="checkbox" data-o="hard"${TYPED==="hard"?" checked":""}><span>名前を手打ちで入力【難しい】<small>フルネームの漢字まで合っていれば3点、読みなら2点、姓か名の片方だけなら1点<br>1問3点・満点30点</small></span></label>
-  <p class="sub" style="font-size:12px">※ すべてオフのときは、手打ちなしで答えを見るクイズになります。<br>※ 手打ちモードのトリガーセットクイズでは、同一トリガーセットのキャラは出題しません。</p>`;
+  <p class="sub" style="font-size:12px">※ すべてオフのときは、手打ちなしで答えを見るクイズになります。<br>※ トリガーセットクイズで正解のキャラが複数いる問題では、人数分の入力欄が出ます（順不同・得点は人数分）。</p>`;
   opt.hidden=false;
   const box=opt.firstElementChild;if(box&&box.scrollTo)box.scrollTo(0,0);
 }
@@ -874,6 +915,8 @@ app.onclick=e=>{
   if(a==="qstart"){startQuiz(s);return}
   if(a==="qans"&&QZ){submitAnswer();return}
   if(a==="qhome"){QZ=null;location.hash="";return}
+  if(a==="qagain"&&QZ){startQuiz(QZ.type);return}
+  if(a==="qchange"&&QZ){QZ=null;location.hash="#quiz";return}
   if(a==="qnext"&&QZ){if(QZ.i<QZ.items.length-1){QZ.i++;QZ.phase="q";quizPlay()}else if(QZ.typed){QZ.phase="r";quizPlay()}else{QZ=null;location.hash=""}return}
   const c=DATA[HS.id],st=HS[s];
   if(!c||!st)return;
@@ -889,7 +932,12 @@ app.onclick=e=>{
   detail(HS.id,true);
 };
 
-app.onkeydown=e=>{if(e.key==="Enter"&&!e.isComposing&&e.target&&e.target.id==="ans"){e.preventDefault();submitAnswer()}};
+app.onkeydown=e=>{
+  if(e.key!=="Enter"||e.isComposing||!e.target||!/^ans\d+$/.test(e.target.id||""))return;
+  e.preventDefault();
+  const nx=document.getElementById("ans"+(parseInt(e.target.id.slice(3),10)+1));
+  if(nx&&nx.focus)nx.focus();else submitAnswer();
+};
 
 function route(){
   pop.hidden=true;opt.hidden=true;
