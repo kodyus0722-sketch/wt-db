@@ -62,7 +62,8 @@ ruby rt{font-size:.5em;font-weight:400;color:var(--sub);letter-spacing:.02em}.an
 .qb2{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:0 0 18px}.qb2 .btn{flex:1;min-width:140px;max-width:220px}
 .aname.multi{line-height:1.8}.aname.multi .nlk{font-size:22px}
 .note{color:var(--sub);font-size:12px;margin-top:14px}
-.qa{background:var(--card);border-radius:12px;padding:12px 14px;margin:10px 0}.qd{font-size:12px;color:var(--sub);margin-bottom:4px}.qq{font-weight:700;margin-bottom:6px}.qaa{font-size:15px;line-height:1.7}.qtags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.qq1{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.qa.qi{display:block;width:100%;text-align:left;border:0;color:var(--fg);font:inherit;cursor:pointer}.qa.qi .qd{display:flex;justify-content:space-between;gap:8px}.kind{font-size:11px;padding:1px 8px;border-radius:999px;border:1px solid var(--line);color:var(--sub);white-space:nowrap}.kind.v{border-color:var(--ac);color:var(--ac)}.qtxt{white-space:pre-wrap;word-break:break-word}.qsrc{margin:6px 0 0;padding-left:1.2em;font-size:13px}.qsrc a{color:var(--ac);word-break:break-all}.mpcode{font-size:56px;font-weight:700;letter-spacing:.3em;text-align:center;color:var(--ac);margin:4px 0 8px;padding-left:.3em}.mpt td:nth-child(3),.mpt td:nth-child(4){text-align:right;white-space:nowrap;font-size:15px}.qtag{font-size:11px;padding:2px 8px;border-radius:999px;border:1px solid var(--line);color:var(--sub)}
+.qa{background:var(--card);border-radius:12px;padding:12px 14px;margin:10px 0}.qd{font-size:12px;color:var(--sub);margin-bottom:4px}.qq{font-weight:700;margin-bottom:6px}.qaa{font-size:15px;line-height:1.7}.qtags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.qq1{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.qa.qi{display:block;width:100%;text-align:left;border:0;color:var(--fg);font:inherit;cursor:pointer}.qa.qi .qd{display:flex;justify-content:space-between;gap:8px}.kind{font-size:11px;padding:1px 8px;border-radius:999px;border:1px solid var(--line);color:var(--sub);white-space:nowrap}.kind.v{border-color:var(--ac);color:var(--ac)}.qtxt{white-space:pre-wrap;word-break:break-word}.qsrc{margin:6px 0 0;padding-left:1.2em;font-size:13px}.qsrc a{color:var(--ac);word-break:break-all}.mpcode{font-size:56px;font-weight:700;letter-spacing:.3em;text-align:center;color:var(--ac);margin:4px 0 8px;padding-left:.3em}.mpt td:nth-child(3),.mpt td:nth-child(4){text-align:right;white-space:nowrap;font-size:15px}.aksel{width:100%;margin-top:6px;padding:12px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--fg);font-size:15px}.aklog{background:var(--card);border-radius:10px;padding:10px 12px;margin:6px 0;font-size:14px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}.akans{margin-left:auto;font-weight:700;font-size:13px;padding:2px 10px;border-radius:999px;border:1px solid var(--line)}.ak-y{background:#1f8f4e;color:#fff;border-color:#1f8f4e}.ak-py{background:#9bd3ae;color:#0b3a1d;border-color:#9bd3ae}.ak-pn{background:#f1c27a;color:#4a2f00;border-color:#f1c27a}.ak-n{background:#c0392b;color:#fff;border-color:#c0392b}.ak-u{color:var(--sub)}.qtag{font-size:11px;padding:2px 8px;border-radius:999px;border:1px solid var(--line);color:var(--sub)}
+.slot.qmk{outline:2px dashed var(--ac);outline-offset:-2px}.slot.qmk .sv{font-size:22px;font-weight:700;color:var(--ac)}.slot.hit{outline:2px solid var(--ac);outline-offset:-2px}.slot.hit .sv{font-weight:700}
 </style>
 </head>
 <body>
@@ -598,21 +599,37 @@ function home(){
 function topbar(right,title){return `<div class="topbar"><button class="homebtn" data-a="gohome" aria-label="ホームへ"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M3 11.5L12 4l9 7.5"/><path d="M5.5 10v10h5v-6h3v6h5V10"/></svg></button>${title?`<h1 class="ttl">${title}</h1>`:""}<div>${right||""}</div></div>`}
 const qbar=t=>`${topbar('<button class="btn" data-a="endq">終了する</button>')}<div class="qn" style="margin:4px 0">${t}</div>`;
 function quizSelect(){
-  app.innerHTML=`${topbar()}<button class="back" data-h="#qm">‹ モード選択</button><div class="qn" style="margin:4px 0">ソロモード</div><h2 class="qt">クイズの種類を選んでください</h2>
-  <button class="bigbtn" data-a="qstart" data-s="chart">チャートクイズ<small>パラメーターのチャートから当てる（10問）</small></button>
-  <button class="bigbtn" data-a="qstart" data-s="trig">トリガーセットクイズ<small>メイン・サブのトリガーセットから当てる（10問）</small></button>
-  <div class="optrow"><button class="btn" data-a="opt">⚙ オプション</button></div>`;
+  app.innerHTML=`${topbar()}<button class="back" data-h="#qm">‹ モード選択</button><div class="qn" style="margin:4px 0">ソロモード</div><h2 class="qt">クイズの種類を選んでください</h2><p class="sub" style="text-align:center;margin:0 0 6px">種類を選ぶと、オプション画面に進みます。</p>
+  <button class="bigbtn" data-h="#qo/chart">チャートクイズ<small>パラメーターのチャートから当てる</small></button>
+  <button class="bigbtn" data-h="#qo/trig">トリガーセットクイズ<small>メイン・サブのトリガーセットから当てる</small></button>
+  <button class="bigbtn" data-h="#qo/slot">トリガー穴埋めクイズ<small>トリガーセットの「？」に入るトリガーを当てる</small></button>
+  <button class="bigbtn" data-h="#qo/aki">キャラ当てクイズ<small>質問をして、アプリの答え（はい・いいえなど）からキャラを当てる</small></button>`;
   scrollTo(0,0);
 }
 function qPool(type){return DATA.filter(c=>c.pos!=="OP"&&(MINOR||!MINOR_SET.includes(c.name))&&(NEAR||!NEAR_SET.includes(c.name))&&(type==="chart"?c.st.every(v=>v!=null):!!VER[c.name]))}
 const setKey=c=>{const v=VER[c.name];return JSON.stringify([v.main.map(x=>x||""),v.sub.map(x=>x||"")])};
+let QCOUNT=10;/* 問題数（0＝全キャラ分） */
+const QCOUNTS=[[10,"10問"],[20,"20問"],[30,"30問"],[50,"50問"],[0,"全キャラ分"]];
+const qcLabel=n=>n?n+"問":"全キャラ分";
+const baseNm=n=>n.replace(/（.*?）/g,"");
+/* 同じセットの中で同じキャラを出さない（（黒トリガー装備）などの別形態も同じキャラとして扱う） */
+function pickSet(pool,type,count){
+  const seenN=new Set(),seenK=new Set(),out=[];
+  for(const c of pool){
+    const b=baseNm(c.name);if(seenN.has(b))continue;
+    if(type==="trig"){const k=setKey(c);if(seenK.has(k))continue;seenK.add(k)}
+    seenN.add(b);out.push(c);
+    if(count&&out.length>=count)break;
+  }
+  return out;
+}
 function startQuiz(type){
+  if(type==="slot"){startSlot();return}
   const groups={};
   if(type==="trig")qPool("trig").forEach(c=>{(groups[setKey(c)]=groups[setKey(c)]||[]).push(c.name)});
   let pool=qPool(type);
   for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]]}
-  if(type==="trig"){const seen=new Set(),pick=[];for(const c of pool){const k=setKey(c);if(seen.has(k))continue;seen.add(k);pick.push(c);if(pick.length===10)break}pool=pick}
-  const items=pool.slice(0,10),per=({easy:1,normal:2,hard:3})[TYPED]||0;
+  const items=pickSet(pool,type,QCOUNT),per=({easy:1,normal:2,hard:3})[TYPED]||0;
   const need=items.map(c=>type==="trig"?groups[setKey(c)].length:1);
   QZ={type,items,i:0,phase:"q",groups,typed:!!TYPED,level:TYPED||null,per,need,max:need.reduce((p,q)=>p+q,0)*per,ans:[],pts:[],det:[]};
   if(location.hash==="#qp")quizPlay();else location.hash="#qp";
@@ -760,7 +777,7 @@ const READ={};
 const norm=t=>(t||"").normalize("NFKC").replace(/[ァ-ヶ]/g,ch=>String.fromCharCode(ch.charCodeAt(0)-0x60)).replace(/[\s・･·.]/g,"").toLowerCase();
 /* 判定：3=漢字フルネーム一致 / 2=姓・名とも読み(または漢字)一致 / 1=姓のみ または 名のみ一致 / 0=不一致 */
 function judge(name,input){
-  const full=name.replace(/（.*?）/g,""),x=norm(input);
+  const full=name.replace(/（.*?）/g,""),x=norm(String(input).replace(/[（(][^）)]*[）)]/g,""));
   if(!x)return 0;
   const nm=READ[full];
   if(!nm)return x===norm(full)?3:0;
@@ -790,8 +807,64 @@ function bestAssign(names,inputs){
 }
 const esc=t=>String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;");
 const answerNames=c=>QZ.type==="trig"?(QZ.groups[setKey(c)]||[c.name]):[c.name];
+/* ===== トリガー穴埋めクイズ：特定キャラの特定の枠のトリガーを当てる ===== */
+let SLOTTYPED=false,SLOTHIDE=false;
+/* 多くのキャラが持つトリガー（シールド・バッグワーム）は、特徴のあるキャラだけ出題する */
+function slotCands(c){
+  const v=VER[c.name],out=[];
+  for(const side of ["main","sub"])v[side].forEach((t,i)=>{
+    if(!t||t==="■")return;
+    if(t==="シールド"){const o=side==="main"?"sub":"main";if(!v[o].includes("シールド"))out.push({side,idx:i,t})}/* 片側にしかシールドがない */
+    else if(t==="バッグワーム"){if(side==="main")out.push({side,idx:i,t})}/* メイン側に入れている */
+    else out.push({side,idx:i,t});
+  });
+  return out;
+}
+const trigPlain=t=>t.replace(/〈.*?〉/g,""),trigBase=t=>trigPlain(t).split("：")[0];
+const trigAl=x=>x.replace(/ばっくわーむ/g,"ばっぐわーむ");
+function slotOK(t,input){const x=trigAl(norm(input));return !!x&&[t,trigPlain(t),trigBase(t)].some(y=>trigAl(norm(y))===x)}
+function startSlot(){
+  const pool=qPool("trig").filter(c=>slotCands(c).length);
+  for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]]}
+  const items=pickSet(pool,"slot",QCOUNT).map(c=>{const a=slotCands(c),x=a[Math.floor(Math.random()*a.length)];return{c,side:x.side,idx:x.idx,t:x.t}});
+  QZ={type:"slot",items,i:0,phase:"q",typed:SLOTTYPED,hide:SLOTHIDE,per:1,need:[],groups:{},max:items.length,ans:[],pts:[],det:[]};
+  if(location.hash==="#qp")quizPlay();else location.hash="#qp";
+}
+const slotPos=it=>`${it.side==="main"?"メイン":"サブ"}トリガー・上から${it.idx+1}つ目`;
+function slotGrid(it,show,hide){
+  const v=VER[it.c.name],n=Math.max(v.main.length,v.sub.length);let g="";
+  const cell=(side,k,i)=>(i===it.idx&&side===it.side)
+    ?`<div class="slot ${show?"hit":"qmk"}"><span class="sn">${k}${i+1}</span><span class="sv">${show?esc(it.t):"？"}</span></div>`
+    :hide?`<div class="slot hid"><span class="sn">${k}${i+1}</span><span class="sv" style="color:var(--sub)">非表示</span></div>`:pc(k,i,v[side][i]);
+  for(let i=0;i<n;i++)g+=cell("sub","サブ",i)+cell("main","メイン",i);
+  return `<div class="tg"><div class="th">サブトリガー</div><div class="th">メイントリガー</div>${g}</div>`;
+}
+function slotPlay(){
+  if(QZ.phase==="r"){
+    const total=QZ.pts.reduce((p,q)=>p+(q||0),0);
+    const rows=QZ.items.map((it,i)=>`<tr><td>${i+1}</td><td>${esc(baseNm(it.c.name))}<br><span class="sub">${slotPos(it)}</span></td><td>${esc(it.t)}</td><td>${(QZ.ans[i]||"").trim()?esc(QZ.ans[i]):"—"}</td><td>${QZ.pts[i]||0}点</td></tr>`).join("");
+    app.innerHTML=`${qbar("結果")}<h2 class="qt">リザルト</h2><div class="score">${total}<small> / ${QZ.max}点</small></div><table class="rt">${rows}</table><div class="qb"><button class="btn pri big" data-a="qhome">ホームへ戻る</button></div><div class="qb2"><button class="btn big" data-a="qchange">条件を変えて遊ぶ</button><button class="btn big" data-a="qagain">もう一度遊ぶ</button></div>`;
+    scrollTo(0,0);return;
+  }
+  const it=QZ.items[QZ.i],last=QZ.i===QZ.items.length-1,bar=qbar(`第${QZ.i+1}問 / ${QZ.items.length}`);
+  const head=`<h2 class="qt">${nameRuby(it.c.name)}の<br>${slotPos(it)}は？</h2>`;
+  if(QZ.phase==="q"){
+    const ask=QZ.typed?`<div class="ansbox"><input id="ans0" type="text" placeholder="トリガー名を入力（例：グラスホッパー）" autocomplete="off" autocapitalize="off" spellcheck="false"></div><div class="qb"><button class="btn pri big" data-a="qans">回答する</button></div>`:`<div class="qb"><button class="btn pri big" data-a="qans">回答を見る</button></div>`;
+    app.innerHTML=`${bar}${head}${slotGrid(it,false,QZ.hide)}${ask}`;
+  }else{
+    const p=QZ.pts[QZ.i]||0,v=QZ.ans[QZ.i]||"";
+    const res=QZ.typed?`<div class="res"><div>あなたの回答：<b>${v.trim()?esc(v):"（未入力）"}</b></div><div class="pt">${p?"正解！":"不正解"}</div></div>`:"";
+    const nextLabel=last?(QZ.typed?"結果を見る":"ホームへ戻る"):"次へ";
+    app.innerHTML=`${bar}${head}${res}<div class="ans"><div class="sub">答え</div><h2 class="aname">${esc(it.t)}</h2></div>${slotGrid(it,true)}<div class="qb"><button class="btn pri big" data-a="qnext">${nextLabel}</button></div>${last&&!QZ.typed?'<div class="qb2"><button class="btn big" data-a="qchange">条件を変えて遊ぶ</button><button class="btn big" data-a="qagain">もう一度遊ぶ</button></div>':""}`;
+  }
+  scrollTo(0,0);
+}
 function submitAnswer(){
   if(!QZ||QZ.phase!=="q")return;
+  if(QZ.type==="slot"){
+    if(QZ.typed){const el=document.getElementById("ans0"),v=el&&typeof el.value==="string"?el.value:"";QZ.ans[QZ.i]=v;QZ.pts[QZ.i]=slotOK(QZ.items[QZ.i].t,v)?1:0}
+    QZ.phase="a";quizPlay();return;
+  }
   if(QZ.typed){
     const c=QZ.items[QZ.i],names=answerNames(c),inputs=[];
     for(let k=0;k<names.length;k++){const el=document.getElementById("ans"+k);inputs.push(el&&typeof el.value==="string"?el.value:"")}
@@ -802,6 +875,7 @@ function submitAnswer(){
 }
 function quizPlay(){
   if(!QZ){location.hash="";return}
+  if(QZ.type==="slot"){slotPlay();return}
   if(QZ.phase==="r"){
     const total=QZ.pts.reduce((p,q)=>p+(q||0),0);
     const rows=QZ.items.map((c,i)=>{
@@ -842,31 +916,48 @@ function quizPlay(){
 }
 
 const opt=document.getElementById("opt"),obody=document.getElementById("obody");
-function openOpt(){
-  obody.innerHTML=`<h2 style="margin:0 0 4px">オプション</h2><p class="sub" style="font-size:12px;margin:0 0 6px">切り替えるとすぐに出題形式へ反映されます。</p>
+function optBody(type){
+  const AKM=type==="aki";/* キャラ当てでは問題数・手打ち形式は使わない */
+  return `${AKM?"":`<h3>問題数</h3>
+  <div class="chips">${QCOUNTS.map(([n,l])=>`<button class="chip${QCOUNT===n?" on":""}" data-o="cnt${n}">${l}</button>`).join("")}</div>
+  <p class="sub" style="font-size:12px;margin:6px 0 0">※ 同じキャラは重複しません。対象キャラ数が上限です。</p>`}
   <h3>出題対象キャラ</h3>
-  <label class="tgl"><input type="checkbox" data-o="minor"${MINOR?" checked":""}><span>出題範囲にマイナーキャラを追加<small>対象：一覧の茶野隊〜丙秀英のキャラ（漆間隊を除く）<br>※ 同一トリガーセットのキャラが除外対象外にいる場合、そのトリガーセットは出題される可能性あり（正解には除外キャラを含めません）</small></span></label>
-  <label class="tgl"><input type="checkbox" data-o="near"${NEAR?" checked":""}><span>出題範囲に近界民を追加<small>対象：アフトクラトル・ガロプラのキャラ（ヒュースを含む）</small></span></label>
-  <h3>回答形式（手打ちで入力するモード）</h3>
-  <label class="tgl"><input type="checkbox" data-o="easy"${TYPED==="easy"?" checked":""}><span>名前を手打ちで入力【簡単】<small>姓か名のどちらかが合っていれば正解（漢字・ひらがな可）<br>1問1点・満点10点</small></span></label>
-  <label class="tgl"><input type="checkbox" data-o="normal"${TYPED==="normal"?" checked":""}><span>名前を手打ちで入力【普通】<small>フルネームの読みが合っていれば2点、姓か名の片方だけなら1点（漢字・ひらがな可）<br>1問2点・満点20点</small></span></label>
-  <label class="tgl"><input type="checkbox" data-o="hard"${TYPED==="hard"?" checked":""}><span>名前を手打ちで入力【難しい】<small>フルネームの漢字まで合っていれば3点、読みなら2点、姓か名の片方だけなら1点<br>1問3点・満点30点</small></span></label>
-  <p class="sub" style="font-size:12px">※ すべてオフのときは、手打ちなしで答えを見るクイズになります。<br>※ トリガーセットクイズで正解のキャラが複数いる問題では、人数分の入力欄が出ます（順不同・得点は人数分）。</p>`;
-  opt.hidden=false;
-  const box=opt.firstElementChild;if(box&&box.scrollTo)box.scrollTo(0,0);
+  <label class="tgl"><input type="checkbox" data-o="minor"${MINOR?" checked":""}><span>出題範囲にマイナーキャラを追加<small>茶野隊〜丙秀英（漆間隊を除く）</small></span></label>
+  <label class="tgl"><input type="checkbox" data-o="near"${NEAR?" checked":""}><span>出題範囲に近界民を追加<small>アフトクラトル・ガロプラ（ヒュース含む）</small></span></label>
+  ${type==="slot"?`<h3>表示</h3>
+  <label class="tgl"><input type="checkbox" data-o="slothide"${SLOTHIDE?" checked":""}><span>出題枠以外のトリガーを非表示にする<small>問題中は「？」の枠以外を隠します（難しい）。答え合わせでは全体を表示</small></span></label>
+  <h3>回答形式</h3>
+  <label class="tgl"><input type="checkbox" data-o="slottyped"${SLOTTYPED?" checked":""}><span>トリガー名を手打ちで入力<small>ひらがな可・「：突撃銃」「〈試作〉」は省略可（1問1点）。オフなら答えを見るだけ</small></span></label>`:AKM?"":`<h3>回答形式（手打ちで入力するモード）</h3>
+  <label class="tgl"><input type="checkbox" data-o="easy"${TYPED==="easy"?" checked":""}><span>名前を手打ちで入力【簡単】<small>姓か名が合っていれば正解（1問1点）</small></span></label>
+  <label class="tgl"><input type="checkbox" data-o="normal"${TYPED==="normal"?" checked":""}><span>名前を手打ちで入力【普通】<small>フルネームの読みで2点、姓か名だけなら1点（1問2点）</small></span></label>
+  <label class="tgl"><input type="checkbox" data-o="hard"${TYPED==="hard"?" checked":""}><span>名前を手打ちで入力【難しい】<small>漢字まで合えば3点、読みなら2点、姓か名だけなら1点（1問3点）</small></span></label>
+  <p class="sub" style="font-size:12px">※ すべてオフなら手打ちなしで答えを見ます。</p>`}
+  ${AKM?`<h3>アプリが思い浮かべるキャラの人数</h3>
+  <div class="chips">${[1,2,3].map(n=>`<button class="chip${AKN===n?" on":""}" data-o="akn${n}">${n}人</button>`).join("")}</div>
+  <p class="sub" style="font-size:12px;margin:6px 0 0">人数が多いほど質問・解答の回数が増えます（質問${AK_QS[1]}／${AK_QS[2]}／${AK_QS[3]}回）。</p>`:""}`;
 }
-document.getElementById("ox").onclick=()=>{opt.hidden=true};
-opt.onclick=e=>{
-  if(e.target===opt){opt.hidden=true;return}
-  const el=e.target&&e.target.closest?e.target.closest("[data-o]"):null;
-  if(!el)return;
-  if(el.dataset.o==="minor")MINOR=el.checked;
-  else if(el.dataset.o==="near")NEAR=el.checked;
-  else if(["easy","normal","hard"].includes(el.dataset.o)){
-    TYPED=el.checked?el.dataset.o:false;
-    if(obody.querySelectorAll)obody.querySelectorAll("[data-o=easy],[data-o=normal],[data-o=hard]").forEach(c=>{c.checked=(c.dataset.o===TYPED)});
+const slotIntro=()=>`<p class="note" style="margin-top:10px">トリガーセットの一部が「？」になっています。そこに入るトリガーを当てます。<br>シールド・バッグワームは多くのキャラが持つため、片側にだけ入れている・メインに入れているなど特徴のあるキャラだけ出題します。</p>`;
+function optScreen(type){
+  const nm={chart:"チャートクイズ",trig:"トリガーセットクイズ",slot:"トリガー穴埋めクイズ",aki:"キャラ当てクイズ"}[type];
+  app.innerHTML=`${topbar()}<button class="back" data-h="#quiz">‹ 種類選択</button><div class="qn" style="margin:4px 0">ソロモード・${nm}</div><h2 class="qt">オプション</h2>
+  ${type==="aki"?akIntro():type==="slot"?slotIntro():""}${optBody(type)}
+  <div class="qb"><button class="btn pri big" data-a="${type==="aki"?"akstart":"qstart"}" data-s="${type}">開始</button></div>`;
+  scrollTo(0,0);
+}
+function optClick(el){
+  const o=el.dataset.o,root=app;
+  const tog=(re,f)=>{if(root.querySelectorAll)root.querySelectorAll("[data-o]").forEach(c=>{if(re.test(c.dataset.o))c.classList.toggle("on",f(c.dataset.o))})};
+  if(/^cnt\d+$/.test(o)){QCOUNT=+o.slice(3);tog(/^cnt\d+$/,v=>v==="cnt"+QCOUNT);return}
+  if(/^akn\d$/.test(o)){AKN=+o.slice(3);tog(/^akn\d$/,v=>v==="akn"+AKN);return}
+  if(o==="slottyped"){SLOTTYPED=!!el.checked;return}
+  if(o==="slothide"){SLOTHIDE=!!el.checked;return}
+  if(o==="minor")MINOR=el.checked;
+  else if(o==="near")NEAR=el.checked;
+  else if(["easy","normal","hard"].includes(o)){
+    TYPED=el.checked?o:false;
+    if(root.querySelectorAll)root.querySelectorAll("[data-o=easy],[data-o=normal],[data-o=hard]").forEach(c=>{c.checked=(c.dataset.o===TYPED)});
   }
-};
+}
 const pop=document.getElementById("pop"),pbody=document.getElementById("pbody");
 function popHTML(c){
   const isOp=c.pos==="OP",keys=isOp?KEYS_OP:KEYS;
@@ -951,10 +1042,187 @@ function qaDetail(i){
   scrollTo(0,0);
 }
 
+/* ===== キャラ当てクイズ（アキネーター風：質問して、アプリが答える） ===== */
+const AK_QS={1:20,2:30,3:40},AK_GS={1:3,2:6,3:9};let AKN=1;
+const AKA={y:["はい","y"],py:["部分的にそう","py"],pn:["部分的に違う","pn"],n:["いいえ","n"],u:["わからない（データなし）","u"]};
+const AKROWS=[["あ","あいうえおぁぃぅぇぉ"],["か","かきくけこがぎぐげご"],["さ","さしすせそざじずぜぞ"],["た","たちつてとだぢづでどっ"],["な","なにぬねの"],["は","はひふへほばびぶべぼぱぴぷぺぽ"],["ま","まみむめも"],["や","やゆよゃゅょ"],["ら","らりるれろ"],["わ","わをん"]];
+const akRow=ch=>{const r=AKROWS.find(x=>x[1].includes(ch));return r?r[0]:""};
+const akTn=x=>base(x).replace("バックワーム","バッグワーム");
+let AK=null,AKUI={cat:"pos",val:"",dir:"hi",sc:"any"};
+let AKCACHE=null;
+function akCache(){
+  if(AKCACHE)return AKCACHE;
+  const vals=Array.from({length:KEYS.length+1},()=>[]);
+  DATA.forEach(c=>{if(c.pos==="OP")return;c.st.forEach((v,i)=>{if(v!=null)vals[i].push(v)});if(c.total!=null)vals[KEYS.length].push(c.total)});
+  const tc={};
+  const add=n=>{if(!n||n==="■")return;const t=akTn(n);if(t==="バッグワームタグ")return;tc[t]=(tc[t]||0)+1};
+  DATA.forEach(c=>{const s=tsets(c);if(!s)return;s.M.forEach(add);if(s.S)s.S.forEach(add)});
+  const trigs=Object.keys(tc).sort((a,b)=>tc[b]-tc[a]||(a<b?-1:1));
+  const teams=[];DATA.forEach(c=>{if(c.pos!=="OP"&&c.team&&!teams.includes(c.team))teams.push(c.team)});
+  return AKCACHE={vals,trigs,teams};
+}
+const akPct=(arr,v)=>{let lt=0,eq=0;arr.forEach(x=>{if(x<v)lt++;else if(x===v)eq++});return (lt+eq/2)/arr.length};
+function akQText(q){
+  if(q.k==="pos")return `ポジションは${PN[q.v]}（${q.v}）？`;
+  if(q.k==="team")return q.v==="@tama"?"所属は玉狛支部（第一・第二を含む）？":`所属は「${q.v}」？`;
+  if(q.k==="param")return `${q.v==="t"?"総合値":KEYS[+q.v]}は${q.dir==="lo"?"低い":"高い"}？`;
+  if(q.k==="trig")return `${q.sc==="main"?"メイントリガーに":q.sc==="sub"?"サブトリガーに":"トリガーセットに"}「${q.v}」${q.sc==="any"?"を入れている":"がある"}？`;
+  if(q.k==="flag")return ({black:"ブラックトリガー・角トリガー（風刃を含む）を使う？",nei:"ネイバー（近界民）側のキャラ？",border:"ボーダーの隊員？"})[q.v];
+  if(q.k==="read")return `名前の読みは「${q.v}行」から始まる？（姓・名）`;
+  return "";
+}
+const akQKey=q=>[q.k,q.v,q.dir||"",q.sc||""].join("|");
+function akAnswer(c,q){
+  if(q.k==="pos"){
+    if(c.pos===q.v)return "y";
+    if(c.pos==="AR"&&["AT","GU","SH"].includes(q.v))return "py";
+    if(q.v==="AR"&&["AT","GU","SH"].includes(c.pos))return "pn";
+    if((c.pos==="GU"&&q.v==="SH")||(c.pos==="SH"&&q.v==="GU"))return "pn";
+    return "n";
+  }
+  if(q.k==="team"){
+    if(q.v==="@tama")return TAMA.includes(c.team)?"y":"n";
+    return c.team===q.v?"y":"n";
+  }
+  if(q.k==="param"){
+    const i=q.v==="t"?KEYS.length:+q.v,v=q.v==="t"?c.total:c.st[i];
+    if(v==null)return "u";
+    let p=akPct(akCache().vals[i],v);if(q.dir==="lo")p=1-p;
+    return p>=0.75?"y":p>=0.5?"py":p>=0.25?"pn":"n";
+  }
+  if(q.k==="trig"){
+    const s=tsets(c);if(!s)return "u";
+    const has=a=>!!a&&a.some(n=>n&&n!=="■"&&akTn(n)===q.v);
+    const m=has(s.M),u=has(s.S);
+    if(q.sc==="any")return m||u?"y":"n";
+    if(q.sc==="main")return m?"y":u?"pn":"n";
+    return u?"y":m?"pn":"n";
+  }
+  if(q.k==="flag"){
+    if(q.v==="black")return isBlack(c)?"y":"n";
+    if(q.v==="nei")return isNei(c)?"y":"n";
+    return isNei(c)?"n":"y";
+  }
+  if(q.k==="read"){
+    const rd=READ[baseNm(c.name)];if(!rd)return "u";
+    const a=akRow(norm(rd.rs[0]).charAt(0)),b=akRow(norm(rd.rg[0]).charAt(0));
+    return a===q.v?"y":b===q.v?"py":"n";
+  }
+  return "u";
+}
+function akParse(text){
+  const t=String(text||"").normalize("NFKC").replace(/\s/g,"");
+  if(!t)return null;
+  const cache=akCache();
+  const keyWords=[["トリオン",0],["攻撃",1],["防御",2],["援護",2],["機動",3],["技術",4],["射程",5],["指揮",6],["特殊",7],["総合",-1]];
+  for(const [w,i] of keyWords){
+    if(t.includes(w)){return{k:"param",v:i<0?"t":String(i),dir:/低|弱|少な|小さ|苦手|ひく/.test(t)?"lo":"hi"}}
+  }
+  const tn=t.replace(/バックワーム/g,"バッグワーム");
+  const trs=cache.trigs.slice().sort((a,b)=>b.length-a.length);
+  for(const x of trs){if(tn.includes(x))return{k:"trig",v:x,sc:/メイン/.test(t)?"main":/サブ/.test(t)?"sub":"any"}}
+  if(/玉狛(支部|隊)?$|玉狛支部/.test(t)&&!/第[一二]/.test(t))return{k:"team",v:"@tama"};
+  for(const tm of cache.teams.slice().sort((a,b)=>b.length-a.length)){
+    const short=tm.replace(/隊$/,"");
+    if(t.includes(tm)||(t.includes(short+"隊")))return{k:"team",v:tm};
+  }
+  if(/ブラックトリガー|黒トリガー|角トリガー|風刃/.test(t))return{k:"flag",v:"black"};
+  if(/ネイバー|近界|アフトクラトル|ガロプラ/.test(t))return{k:"flag",v:"nei"};
+  if(/ボーダー(隊員|の)/.test(t))return{k:"flag",v:"border"};
+  const pw=[[/オールラウンダー|万能手/,"AR"],[/アタッカー|攻撃手/,"AT"],[/ガンナー|銃手/,"GU"],[/シューター|射手/,"SH"],[/スナイパー|狙撃手/,"SN"],[/トラッパー/,"TR"],[/スポッター/,"SP"]];
+  for(const [re,v] of pw)if(re.test(t))return{k:"pos",v};
+  const m=t.match(/(?:^|「|『)?([あ-わ])行/);
+  if(m)return{k:"read",v:m[1]};
+  return null;
+}
+function akIntro(){return `<p class="sub" style="margin-top:10px">質問を重ねて、アプリが思い浮かべたキャラを当てます。答えは「はい／部分的にそう／部分的に違う／いいえ」です。</p>
+    <p class="note">・<b>質問できるのは：</b>ポジション／所属／パラメーター（高い・低い）／トリガー／黒トリガー・ネイバー・ボーダーの区別／名前の読み（あ行〜）だけです。<br>・複数人のときは、キャラごとの答えを誰のものか伏せて並べます。<br>・データのない項目は「わからない」になります。</p>`}
+function akStart(){
+  const pool=qPool("chart");
+  const secrets=[],used=new Set(),n=Math.min(AKN,pool.length);
+  while(secrets.length<n){const c=pool[Math.floor(Math.random()*pool.length)],b=baseNm(c.name);if(used.has(b))continue;used.add(b);secrets.push(c)}
+  AK={n,maxq:AK_QS[n],maxg:AK_GS[n],secrets,found:[],log:[],guesses:[],over:null,asked:new Set(),msg:""};
+  AKUI={cat:"pos",val:"AT",dir:"hi",sc:"any"};
+  if(location.hash!=="#aki")location.hash="#aki";else akiView();
+}
+function akOptions(cat){
+  const cache=akCache();
+  if(cat==="pos")return POSL.filter(p=>p!=="OP").map(p=>[p,`${PN[p]}（${p}）`]);
+  if(cat==="team")return [["@tama","玉狛支部（第一・第二を含む）"]].concat(cache.teams.map(t=>[t,t]));
+  if(cat==="param")return KEYS.map((k,i)=>[String(i),k]).concat([["t","総合値"]]);
+  if(cat==="trig")return cache.trigs.map(t=>[t,t]);
+  if(cat==="flag")return [["black","ブラックトリガー・角トリガーを使う"],["nei","ネイバー（近界民）側"],["border","ボーダーの隊員"]];
+  if(cat==="read")return AKROWS.map(r=>[r[0],r[0]+"行"]);
+  return [];
+}
+const AKCATS=[["pos","ポジション"],["team","所属"],["param","パラメーター"],["trig","トリガー"],["flag","その他"],["read","名前の読み"]];
+function akBuilder(){
+  const opts=akOptions(AKUI.cat);
+  if(!opts.some(o=>o[0]===AKUI.val))AKUI.val=opts[0][0];
+  const seg=(id,arr,cur)=>`<div class="seg" style="margin-top:6px">${arr.map(([v,l])=>`<button data-a="akui" data-k="${id}" data-v="${v}" class="${cur===v?"on":""}">${l}</button>`).join("")}</div>`;
+  return `<div class="fl">質問のしかた</div>
+  <p class="note" style="margin:2px 0 6px">質問できるのは次の項目だけです：ポジション／所属（隊・玉狛支部など）／パラメーター（高い・低い）／トリガー（セット全体・メイン・サブ）／ブラックトリガー・ネイバー・ボーダー隊員の区別／名前の読み（あ行〜わ行）。</p>
+  <select id="akcat" class="aksel">${AKCATS.map(([v,l])=>`<option value="${v}"${AKUI.cat===v?" selected":""}>${l}</option>`).join("")}</select>
+  <select id="akval" class="aksel">${opts.map(([v,l])=>`<option value="${qesc(v)}"${AKUI.val===v?" selected":""}>${qesc(l)}</option>`).join("")}</select>
+  ${AKUI.cat==="param"?seg("dir",[["hi","高い？"],["lo","低い？"]],AKUI.dir):""}
+  ${AKUI.cat==="trig"?seg("sc",[["any","セットに入れている？"],["main","メインにある？"],["sub","サブにある？"]],AKUI.sc):""}
+  <div class="qb"><button class="btn pri big" data-a="akask">この質問をする</button></div>`;
+}
+function akiView(){
+  if(location.hash!=="#aki")return;
+  if(!AK){location.replace("#qo/aki");return}
+  const A=AK,qn=A.log.length,gn=A.guesses.length;
+  const logHTML=A.log.length?`<h3>これまでの質問</h3>`+A.log.slice().reverse().map((x,i)=>`<div class="aklog"><span class="sub">Q${A.log.length-i}</span> ${qesc(x.text)}${x.as.map(c=>`<span class="akans ak-${AKA[c][1]}">${AKA[c][0]}</span>`).join("")}</div>`).join(""):"";
+  const gl=A.guesses.length?`<div class="sub" style="margin-top:6px">これまでのハズレの解答：${A.guesses.map(g=>qesc(g)).join("、")}</div>`:"";
+  if(A.over){
+    const won=A.over==="win";
+    app.innerHTML=`${topbar("","キャラ当てクイズ")}
+    <div class="res"><div class="sub">${won?"全員正解！":A.over==="lose"?"残念…":"ギブアップ"}　${A.found.length} / ${A.secrets.length}人</div>${A.secrets.map(c=>`<div class="aname"><button class="nlk" data-h="#c${c.id}">${nameRuby(baseNm(c.name))}</button>${A.found.includes(c)?" ✔":""}</div><div class="sub">${c.team}／${PN[c.pos]||c.pos}</div>`).join("")}
+    <div class="sub" style="margin-top:6px">質問 ${qn}回・ハズレの解答 ${gn}回</div></div>
+    ${logHTML}<div class="qb"><button class="btn pri big" data-a="akstart">もう一度遊ぶ</button></div><div class="qb2"><button class="btn big" data-h="#qo/aki">オプションを変える</button></div><div class="qb2"><button class="btn big" data-h="#quiz">ソロモードへ</button></div>`;
+    scrollTo(0,0);return;
+  }
+  const left=A.maxq-qn;
+  app.innerHTML=`${topbar('<button class="btn" data-a="akgive">ギブアップ</button>',"キャラ当てクイズ")}
+  <div class="qn" style="margin:4px 0">質問 ${qn} / ${A.maxq}　<span class="sub">ハズレ ${gn} / ${A.maxg}${A.n>1?`　見つけた ${A.found.length} / ${A.n}人`:""}</span></div>
+  ${A.msg?`<p class="note" style="color:#c0392b;margin:6px 0">${qesc(A.msg)}</p>`:""}
+  ${left>0?`<div id="akb">${akBuilder()}</div>
+  <div class="fl">または、文章で質問する</div>
+  <p class="note" style="margin:2px 0 0">※ 上の項目に当てはまる質問だけ受け付けます。</p>
+  <div class="ansbox" style="margin-top:4px"><input id="akfree" type="text" placeholder="例：スナイパー？／アステロイドを使う？／攻撃が高い？" autocomplete="off"></div>
+  <div class="qb"><button class="btn" data-a="akfree">文章で質問する</button></div>`:`<p class="sub" style="margin:12px 0">質問の回数を使い切りました。解答してください。</p>`}
+  <div class="fl">答えが分かったら（名前を入力）</div>
+  <div class="ansbox" style="margin-top:4px"><input id="akguess" type="text" placeholder="キャラクター名（例：三雲 修／みくも おさむ）" autocomplete="off" autocapitalize="off" spellcheck="false"></div>
+  <div class="qb"><button class="btn pri" data-a="akguess">解答する</button></div>${gl}${logHTML}`;
+}
+const AKORD=["y","py","pn","n","u"];
+function akEach(secs,q){return secs.map(c=>akAnswer(c,q)).sort((a,b)=>AKORD.indexOf(a)-AKORD.indexOf(b))}
+function akAsk(q){
+  const A=AK;if(!A||A.over||A.log.length>=A.maxq)return;
+  const key=akQKey(q);
+  if(A.asked.has(key)){A.msg="その質問はすでにしています。";akiView();return}
+  A.asked.add(key);A.msg="";
+  A.log.push({text:akQText(q),as:akEach(A.secrets,q)});
+  akiView();
+}
+function akGuess(text){
+  const A=AK;if(!A||A.over)return;
+  if(!String(text||"").trim()){A.msg="名前を入力してください。";akiView();return}
+  const rest=A.secrets.filter(c=>!A.found.includes(c));
+  const hit=rest.find(c=>judge(baseNm(c.name),text)>=2);
+  if(hit){
+    A.found.push(hit);
+    if(A.found.length>=A.secrets.length){A.over="win";akiView();return}
+    A.msg=`正解！「${baseNm(hit.name)}」でした。残りあと${A.secrets.length-A.found.length}人です。`;akiView();return}
+  A.guesses.push(String(text).trim());A.msg="ハズレです。";
+  if(A.guesses.length>=A.maxg)A.over="lose";
+  akiView();
+}
+
 /* ===== マルチプレイ（Cloudflare Workers + Durable Objects／WebSocket・サインイン不要・ホストなし） ===== */
 const MP_SERVER="";/* ← ここにサーバー（Worker）のURLを書きます。例："https://wt-mp.あなたのアカウント.workers.dev" */
 const MPPER={easy:1,normal:2,hard:3},MPLV={easy:"簡単",normal:"普通",hard:"難しい"},MPTY={chart:"チャートクイズ",trig:"トリガーセットクイズ"};
-let MP=null,MPSEQ=0,MPCFG={type:"chart",level:"normal",mode:"timer",limit:30,minor:false,near:false,nick:"",code:""};
+let MP=null,MPSEQ=0,MPCFG={type:"chart",level:"normal",mode:"timer",limit:30,count:10,minor:false,near:false,nick:"",code:""};
 const MPT={tick:500,wait:8000,fto:8000};
 const mpBase=()=>String((typeof window!=="undefined"&&window.WT_MP_URL)||MP_SERVER||"").replace(/\/+$/,"");
 async function mpApi(path){
@@ -977,7 +1245,7 @@ function mpUid(){
 const mpNow=()=>Date.now()+(MP?MP.off:0);
 function qmSelect(){
   app.innerHTML=`${topbar("","クイズ")}<h2 class="qt">モードを選んでください</h2>
-  <button class="bigbtn" data-h="#quiz">ソロモード<small>ひとりで遊ぶ（チャートクイズ・トリガーセットクイズ）</small></button>
+  <button class="bigbtn" data-h="#quiz">ソロモード<small>ひとりで遊ぶ（チャート・トリガーセット・トリガー穴埋め・キャラ当て）</small></button>
   <button class="bigbtn" data-h="#mp">マルチプレイモード<small>サインイン不要。みんなで同じ問題を解く（進行はアプリが自動で行います）</small></button>`;
   scrollTo(0,0);
 }
@@ -1002,14 +1270,15 @@ function mpMenuDraw(){
   <div class="fl">難しさ（名前の手打ち入力。1問あたりの点数が変わります）</div>${seg("level",[["easy","簡単（1点）"],["normal","普通（2点）"],["hard","難しい（3点）"]])}
   <div class="fl">進行方式</div>${seg("mode",[["timer","制限時間つき"],["all","全員が答えたら進む"]])}
   ${MPCFG.mode==="timer"?`<div class="fl">1問あたりの制限時間</div>${seg("limit",[["20","20秒"],["30","30秒"],["60","60秒"]])}`:""}
+  <div class="fl">問題数</div>${seg("count",QCOUNTS.map(([n,l])=>[String(n),l]))}
   <div class="fl">出題範囲</div><div class="chips"><button class="chip${MPCFG.minor?" on":""}" data-a="mpcfg" data-k="minor" data-v="t">マイナーキャラを追加</button><button class="chip${MPCFG.near?" on":""}" data-a="mpcfg" data-k="near" data-v="t">近界民を追加</button></div>
-  <div class="qb"><button class="btn pri big" data-a="mpcreate">ルームを作る（10問）</button></div>
+  <div class="qb"><button class="btn pri big" data-a="mpcreate">ルームを作る（${qcLabel(MPCFG.count)}）</button></div>
   <h3>ルームコードで参加する</h3>
   <div class="ansbox" style="margin-top:4px"><input id="mpcode" type="text" maxlength="4" placeholder="ルームコード（4文字）" value="${qesc(MPCFG.code)}" autocomplete="off" autocapitalize="characters" spellcheck="false"></div>
   <div class="qb"><button class="btn pri big" data-a="mpjoin">参加する</button></div>
   ${last?`<div class="qb2"><button class="btn big" data-a="mplast" data-c="${qesc(last)}">前回のルーム（${qesc(last)}）に戻る</button></div>`:""}
   <p id="mpmsg" class="note" style="color:#c0392b"></p>
-  <p class="note">サインインは不要です。ホストはいません。開始は全員の「準備完了」で行い、出題・答え合わせ・次の問題への移動はアプリが自動で行い、全員が同じ10問を解いて点数で順位を競います。2〜8人で遊べます。2人以上がそろい、全員が「準備完了」を押すと始まります（準備完了は取り消せます）。進行・時計・採点はサーバーが管理します。</p>`;
+  <p class="note">サインインは不要です。ホストはいません。開始は全員の「準備完了」で行い、出題・答え合わせ・次の問題への移動はアプリが自動で行い、全員が同じ問題を解いて点数で順位を競います。2〜8人で遊べます。2人以上がそろい、全員が「準備完了」を押すと始まります（準備完了は取り消せます）。進行・時計・採点はサーバーが管理します。</p>`;
 }
 function mpMsg(t){const e=document.getElementById("mpmsg");if(e)e.textContent=t||""}
 function mpBuild(cfg){
@@ -1018,8 +1287,8 @@ function mpBuild(cfg){
   if(cfg.type==="trig")pool.forEach(c=>{(groups[setKey(c)]=groups[setKey(c)]||[]).push(c.name)});
   for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]]}
   let pick=pool;
-  if(cfg.type==="trig"){const seen=new Set();pick=[];for(const c of pool){const k=setKey(c);if(seen.has(k))continue;seen.add(k);pick.push(c);if(pick.length===10)break}}
-  return pick.slice(0,10).map(c=>({c:c.name,g:cfg.type==="trig"?groups[setKey(c)]:[c.name]}));
+  pick=pickSet(pool,cfg.type,cfg.count);
+  return pick.map(c=>({c:c.name,g:cfg.type==="trig"?groups[setKey(c)]:[c.name]}));
 }
 function mpNick(){const n=(mpVal("mpnick")||MPCFG.nick||"").trim().slice(0,12);if(n){try{localStorage.setItem("wtnick",n)}catch(e){}}return n||("プレイヤー"+(1+Math.floor(Math.random()*99)))}
 function mpErr(e){
@@ -1032,7 +1301,7 @@ function mpErr(e){
 }
 function mpMeta(cfg){
   const items=mpBuild(cfg);
-  if(items.length<10)throw new Error("noitems");
+  if(items.length<1)throw new Error("noitems");
   return{type:cfg.type,level:cfg.level,mode:cfg.mode,limit:+cfg.limit||30,items};
 }
 async function mpCreate(){
@@ -1046,7 +1315,7 @@ async function mpQuick(){
   mpSaveInputs();
   try{
     const nick=mpNick(),q=await mpApi("/api/quick");
-    const meta=q.create?mpMeta({type:"chart",level:"normal",mode:"timer",limit:30,minor:false,near:false}):null;
+    const meta=q.create?mpMeta({type:"chart",level:"normal",mode:"timer",limit:30,count:10,minor:false,near:false}):null;
     await mpEnter(q.code,nick,meta);
   }catch(e){mpMsg(mpErr(e))}
 }
@@ -1225,6 +1494,8 @@ function mpView(){
 }
 
 app.onclick=e=>{
+  const oe=e.target.closest?e.target.closest("[data-o]"):null;
+  if(oe){optClick(oe);return}
   const el=e.target.closest("[data-h],[data-a]");
   if(!el)return;
   if(el.dataset.h!==undefined){location.hash=el.dataset.h;return}
@@ -1235,7 +1506,21 @@ app.onclick=e=>{
     return}
   if(a==="qaopen"){QS.y=scrollY;location.hash="#qa/"+el.dataset.i;return}
   if(a==="qaback"){if(stack.length&&stack[stack.length-1]==="#qa"){stack.pop();backing=true}location.hash="#qa";return}
-  if(a==="mpcfg"){mpSaveInputs();const k=el.dataset.k,v=el.dataset.v;if(k==="minor"||k==="near")MPCFG[k]=!MPCFG[k];else if(k==="limit")MPCFG.limit=+v;else MPCFG[k]=v;mpMenuDraw();return}
+  if(a==="aknum"){AKN=+el.dataset.v;akiView();return}
+  if(a==="akstart"){akStart();return}
+  if(a==="akui"){AKUI[el.dataset.k]=el.dataset.v;const b=document.getElementById("akb");if(b)b.innerHTML=akBuilder();return}
+  if(a==="akask"){
+    const q=AKUI.cat==="pos"?{k:"pos",v:AKUI.val}:AKUI.cat==="team"?{k:"team",v:AKUI.val}:AKUI.cat==="param"?{k:"param",v:AKUI.val,dir:AKUI.dir}:AKUI.cat==="trig"?{k:"trig",v:AKUI.val,sc:AKUI.sc}:AKUI.cat==="flag"?{k:"flag",v:AKUI.val}:{k:"read",v:AKUI.val};
+    akAsk(q);return}
+  if(a==="akfree"){
+    const t=mpVal("akfree"),q=akParse(t);
+    if(!AK)return;
+    if(!String(t).trim())return;
+    if(!q){AK.msg="質問を理解できませんでした。質問できるのは、ポジション／所属（隊・玉狛支部など）／パラメーター（高い・低い）／トリガー（セット全体・メイン・サブ）／ブラックトリガー・ネイバー・ボーダー隊員の区別／名前の読み（あ行〜わ行）だけです。上の選択式でも質問できます。";akiView();return}
+    akAsk(q);return}
+  if(a==="akguess"){akGuess(mpVal("akguess"));return}
+  if(a==="akgive"){if(AK&&!AK.over){AK.over="give";akiView()}return}
+  if(a==="mpcfg"){mpSaveInputs();const k=el.dataset.k,v=el.dataset.v;if(k==="minor"||k==="near")MPCFG[k]=!MPCFG[k];else if(k==="limit")MPCFG.limit=+v;else if(k==="count")MPCFG.count=+v;else MPCFG[k]=v;mpMenuDraw();return}
   if(a==="mpquick"){mpQuick();return}
   if(a==="mpcreate"){mpCreate();return}
   if(a==="mpjoin"){mpJoin(mpVal("mpcode"));return}
@@ -1243,10 +1528,9 @@ app.onclick=e=>{
   if(a==="mpgo"){mpGo();return}
   if(a==="mpans"){mpSubmit();return}
   if(a==="mpexit"){location.hash="#qm";return}
-  if(a==="opt"){openOpt();return}
   if(a==="endq"){openModal("本当に終了しますか？");return}
   if(a==="gohome"){
-    if(cur==="#list"||cur==="#quiz"||cur==="#qm"||cur==="#mp"||cur==="#qa"||cur.indexOf("#qa/")===0){QZ=null;location.hash="";return}
+    if(cur==="#list"||cur==="#quiz"||cur==="#qm"||cur==="#mp"||cur==="#qa"||cur.indexOf("#qa/")===0||cur.indexOf("#qo/")===0){QZ=null;location.hash="";return}
     openModal(cur==="#qp"?"本当に終了しますか？":cur==="#mpr"?"ルームから退出してホームに戻りますか？":"ホームに戻りますか？");
     return}
   if(a==="minor"){MINOR=el.checked;return}
@@ -1273,7 +1557,18 @@ app.onclick=e=>{
   detail(HS.id,true);
 };
 
+app.onchange=e=>{
+  const t=e.target;if(!t||!t.id)return;
+  if(t.id==="akcat"){AKUI.cat=t.value;AKUI.val="";const b=document.getElementById("akb");if(b)b.innerHTML=akBuilder()}
+  else if(t.id==="akval"){AKUI.val=t.value}
+};
 app.onkeydown=e=>{
+  if(e.key==="Enter"&&!e.isComposing&&e.target&&(e.target.id==="akfree"||e.target.id==="akguess")){
+    e.preventDefault();
+    if(e.target.id==="akfree"){const t=mpVal("akfree"),q=akParse(t);if(!AK||!String(t).trim())return;if(!q){AK.msg="質問を理解できませんでした。質問できるのは、ポジション／所属（隊・玉狛支部など）／パラメーター（高い・低い）／トリガー（セット全体・メイン・サブ）／ブラックトリガー・ネイバー・ボーダー隊員の区別／名前の読み（あ行〜わ行）だけです。上の選択式でも質問できます。";akiView()}else akAsk(q)}
+    else akGuess(mpVal("akguess"));
+    return;
+  }
   if(e.key==="Enter"&&!e.isComposing&&e.target&&/^mpa\d+$/.test(e.target.id||"")){
     e.preventDefault();
     const nx=document.getElementById("mpa"+(parseInt(e.target.id.slice(3),10)+1));
@@ -1294,6 +1589,7 @@ function route(){
   }
   pop.hidden=true;opt.hidden=true;
   if(MP&&location.hash!=="#mpr")mpLeave();
+  if(AK&&location.hash!=="#aki"&&!/^#c\d+$/.test(location.hash))AK=null;
   if(location.hash!==cur){
     if(location.hash==="")stack=[];
     else if(!backing)stack.push(cur);
@@ -1307,6 +1603,8 @@ function route(){
   else if(m=h.match(/^#qa\/(\d+)$/))qaDetail(+m[1]);
   else if(h==="#qa")qaList();
   else if(h==="#qm")qmSelect();
+  else if(m=h.match(/^#qo\/(chart|trig|slot|aki)$/))optScreen(m[1]);
+  else if(h==="#aki")akiView();
   else if(h==="#mp")mpMenu();
   else if(h==="#mpr")mpView();
   else if(h==="#quiz")quizSelect();
